@@ -1,0 +1,51 @@
+import { GetServerSideProps } from "next";
+import axios from "axios";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+import styled from "styled-components";
+import Footer from "@/components/common/Footer";
+import Header from "@/components/common/Header";
+import { Layout } from "@/components/common/Layout";
+import { CreateOrderComponent } from "@/components/create-order/CreateOrderComponent";
+
+interface CreateOrderPageProps {
+  switchStatus: boolean;
+}
+
+const CreateOrderPage: React.FC<CreateOrderPageProps> = ({ switchStatus }) => {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!switchStatus) {
+      // If switch is off, redirect to home page or display a message
+      alert("서비스 준비 중입니다. 잠시 후 다시 시도해주세요.");
+      router.push("/");
+    }
+  }, [switchStatus, router]);
+
+  if (!switchStatus) {
+    return null;
+  }
+
+  return (
+    <Layout>
+      <Header />
+      <CreateOrderComponent />
+      <Footer />
+    </Layout>
+  );
+};
+
+export default CreateOrderPage;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/switch`;
+  const switchResponse = await axios.get(BASE_URL);
+  const switchStatus = switchResponse.data.isActive;
+
+  return {
+    props: {
+      switchStatus,
+    },
+  };
+};
