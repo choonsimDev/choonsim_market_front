@@ -1,7 +1,11 @@
-import axiosClient from '../axiosClient';
-import { CreateOrderDto, MatchOrderDto, UpdateOrderStatusDto } from '../types/order';
+import axiosClient from "../axiosClient";
+import {
+  CreateOrderDto,
+  MatchOrderDto,
+  UpdateOrderStatusDto,
+} from "../types/order";
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/orders`;
+const BASE_URL = `http://localhost:8080/orders`;
 
 export const createOrder = async (orderData: CreateOrderDto) => {
   return axiosClient.post(`${BASE_URL}`, orderData);
@@ -19,7 +23,10 @@ export const getOrdersByStatus = async (status: number) => {
   return axiosClient.get(`${BASE_URL}/status/${status}`);
 };
 
-export const updateOrderStatus = async (id: string, updateData: UpdateOrderStatusDto) => {
+export const updateOrderStatus = async (
+  id: string,
+  updateData: UpdateOrderStatusDto
+) => {
   return axiosClient.patch(`${BASE_URL}/${id}/status`, updateData);
 };
 

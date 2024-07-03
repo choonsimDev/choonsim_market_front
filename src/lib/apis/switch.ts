@@ -1,6 +1,6 @@
 import axiosClient from "../axiosClient";
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/switch`;
+const BASE_URL = `http://localhost:8080//switch`;
 
 export const getSwitches = async () => {
   return axiosClient.get(`${BASE_URL}`);
