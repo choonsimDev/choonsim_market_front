@@ -27,11 +27,11 @@ const TableHead = styled.div`
   font-weight: bold;
 `;
 
-const TableHeader = styled.div<{ isBuy?: boolean; isSell?: boolean }>`
+const TableHeader = styled.div<{ $isBuy?: boolean; $isSell?: boolean }>`
   width: 100px;
   text-align: center;
   padding: 10px 0;
-  color: ${(props) => (props.isBuy ? "red" : props.isSell ? "blue" : "#333")};
+  color: ${(props) => (props.$isBuy ? "red" : props.$isSell ? "blue" : "#333")};
 `;
 
 const TableBody = styled.div``;
@@ -41,11 +41,11 @@ const TableRow = styled.div`
   justify-content: center;
 `;
 
-const TableCell = styled.div<{ isBuy?: boolean; isSell?: boolean }>`
+const TableCell = styled.div<{ $isBuy?: boolean; $isSell?: boolean }>`
   width: 100px;
   text-align: center;
   padding: 10px 0;
-  color: ${(props) => (props.isBuy ? "red" : props.isSell ? "blue" : "#333")};
+  color: ${(props) => (props.$isBuy ? "red" : props.$isSell ? "blue" : "#333")};
 `;
 
 const OrderTable: React.FC = () => {
@@ -82,15 +82,15 @@ const OrderTable: React.FC = () => {
     <TableContainer>
       <TableBlock>
         <TableHead>
-          <TableHeader isBuy>구매</TableHeader>
+          <TableHeader $isBuy>구매</TableHeader>
           <TableHeader>가격</TableHeader>
-          <TableHeader isSell>판매</TableHeader>
+          <TableHeader $isSell>판매</TableHeader>
         </TableHead>
         <TableBody>
           {orders.map((order) => (
             <TableRow key={order.id}>
               <TableCell
-                isBuy={order.type === OrderType.BUY}
+                $isBuy={order.type === OrderType.BUY}
                 onClick={
                   order.type === OrderType.BUY
                     ? () => {
@@ -103,7 +103,7 @@ const OrderTable: React.FC = () => {
               </TableCell>
               <TableCell>{order.price.toLocaleString()}</TableCell>
               <TableCell
-                isSell={order.type === OrderType.SELL}
+                $isSell={order.type === OrderType.SELL}
                 onClick={
                   order.type === OrderType.SELL
                     ? () => {
