@@ -5,21 +5,21 @@ import { validateToken } from "@/lib/apis/auth";
 import { getAllOrders } from "@/lib/apis/order";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { useRouter } from 'next/router';
-
+import { useRouter } from "next/router";
 
 const AdminData = () => {
   const [orderData, setOrderData] = useState<DataItem[]>([]);
   const router = useRouter();
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         await validateToken();
         const { data } = await getAllOrders();
+        console.log(data);
         setOrderData(data);
       } catch (error) {
-        router.push('/admin');
+        router.push("/admin");
       }
     };
     fetchData();
