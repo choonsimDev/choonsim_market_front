@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { getOrdersByStatus } from '@/lib/apis/order';
-import { Order, OrderType } from '@/lib/types/order';
-import { useRouter } from 'next/router';
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
+import { getOrdersByStatus } from "@/lib/apis/order";
+import { Order, OrderType } from "@/lib/types/order";
+import { useRouter } from "next/router";
 
 const TableContainer = styled.div`
   width: 100%;
   max-height: 500px;
   margin: 10px 0;
   font-size: 0.9em;
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
   background-color: #f9f9f9;
   overflow-y: auto;
 `;
@@ -31,11 +31,10 @@ const TableHeader = styled.div<{ isBuy?: boolean; isSell?: boolean }>`
   width: 100px;
   text-align: center;
   padding: 10px 0;
-  color: ${props => (props.isBuy ? 'red' : props.isSell ? 'blue' : '#333')};
+  color: ${(props) => (props.isBuy ? "red" : props.isSell ? "blue" : "#333")};
 `;
 
-const TableBody = styled.div`
-`;
+const TableBody = styled.div``;
 
 const TableRow = styled.div`
   display: flex;
@@ -46,7 +45,7 @@ const TableCell = styled.div<{ isBuy?: boolean; isSell?: boolean }>`
   width: 100px;
   text-align: center;
   padding: 10px 0;
-  color: ${props => (props.isBuy ? 'red' : props.isSell ? 'blue' : '#333')};
+  color: ${(props) => (props.isBuy ? "red" : props.isSell ? "blue" : "#333")};
 `;
 
 const OrderTable: React.FC = () => {
@@ -59,7 +58,9 @@ const OrderTable: React.FC = () => {
       const sortedData = data.sort((a: any, b: any) => b.price - a.price);
 
       const aggregatedData = sortedData.reduce((acc: any, order: any) => {
-        const existing = acc.find((o: any) => o.price === order.price && o.type === order.type);
+        const existing = acc.find(
+          (o: any) => o.price === order.price && o.type === order.type
+        );
         if (existing) {
           existing.remainingAmount += order.remainingAmount;
         } else {
@@ -88,12 +89,30 @@ const OrderTable: React.FC = () => {
         <TableBody>
           {orders.map((order) => (
             <TableRow key={order.id}>
-              <TableCell isBuy={order.type === OrderType.BUY} onClick={order.type === OrderType.BUY ? () => { router.push(`/create-order/buy?price=${order.price}`); } : undefined}>
-                {order.type === OrderType.BUY ? order.remainingAmount : '-'}
+              <TableCell
+                isBuy={order.type === OrderType.BUY}
+                onClick={
+                  order.type === OrderType.BUY
+                    ? () => {
+                        router.push(`/create-order/buy?price=${order.price}`);
+                      }
+                    : undefined
+                }
+              >
+                {order.type === OrderType.BUY ? order.remainingAmount : "-"}
               </TableCell>
               <TableCell>{order.price.toLocaleString()}</TableCell>
-              <TableCell isSell={order.type === OrderType.SELL} onClick={order.type === OrderType.SELL ? () => { router.push(`/create-order/sell?price=${order.price}`); } : undefined}>
-                {order.type === OrderType.SELL ? order.remainingAmount : '-'}
+              <TableCell
+                isSell={order.type === OrderType.SELL}
+                onClick={
+                  order.type === OrderType.SELL
+                    ? () => {
+                        router.push(`/create-order/sell?price=${order.price}`);
+                      }
+                    : undefined
+                }
+              >
+                {order.type === OrderType.SELL ? order.remainingAmount : "-"}
               </TableCell>
             </TableRow>
           ))}
