@@ -13,16 +13,16 @@ interface SellPageProps {
 const SellPage: React.FC<SellPageProps> = ({ switchStatus }) => {
   const router = useRouter();
 
-  useEffect(() => {
-    if (!switchStatus) {
-      alert("서비스 준비 중입니다. 잠시 후 다시 시도해주세요.");
-      router.push("/");
-    }
-  }, [switchStatus, router]);
+  // useEffect(() => {
+  //   if (!switchStatus) {
+  //     alert("서비스 준비 중입니다. 잠시 후 다시 시도해주세요.");
+  //     router.push("/");
+  //   }
+  // }, [switchStatus, router]);
 
-  if (!switchStatus) {
-    return null;
-  }
+  // if (!switchStatus) {
+  //   return null;
+  // }
 
   return (
     <Layout>
@@ -35,9 +35,9 @@ const SellPage: React.FC<SellPageProps> = ({ switchStatus }) => {
 export default SellPage;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/switch`;
+  const BASE_URL = `http://localhost:8080/switch`;
   const switchResponse = await axios.get(BASE_URL);
-  const switchStatus = switchResponse.data.isActive;
+  const switchStatus = switchResponse.data.isActive ?? false;
 
   return {
     props: {
