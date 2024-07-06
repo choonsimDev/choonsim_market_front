@@ -1,29 +1,33 @@
-import styled from "styled-components"
+import styled from "styled-components";
 
 const SecondaryButtonBlock = styled.div`
-    display: flex;
-    justify-content: center;
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
 `;
 
 const SecondaryButtonContainer = styled.button`
-    border: 1px solid #BBBFC1;
-    border-radius: 5px;
-    padding: 12px 32px;
-    background-color: #fff;
-    font-size: 16px;
+  border: 1px solid #bbbfc1;
+  border-radius: 5px;
+  padding: 12px 32px;
+  background-color: #fff;
+  font-size: 16px;
 `;
 
 interface SecondaryButtonProps {
-    onClick: () => void;
-    text: string;
+  onClick: () => void;
+  text: string;
 }
 
-export const SecondaryButton: React.FC<SecondaryButtonProps> = ({ onClick, text }) => {
-    return (
-        <SecondaryButtonBlock>
-            <SecondaryButtonContainer onClick={onClick}>
-                { text } <img src="/svg/next-icon.svg" />
-            </SecondaryButtonContainer>
-        </SecondaryButtonBlock>
-    )
-}
+export const SecondaryButton: React.FC<SecondaryButtonProps> = ({
+  onClick,
+  text,
+}) => {
+  return (
+    <SecondaryButtonBlock>
+      <SecondaryButtonContainer onClick={onClick}>
+        {text} <img src="/svg/next-icon.svg" />
+      </SecondaryButtonContainer>
+    </SecondaryButtonBlock>
+  );
+};

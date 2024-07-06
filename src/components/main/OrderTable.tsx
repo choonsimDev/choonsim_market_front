@@ -10,8 +10,10 @@ const TableContainer = styled.div`
   margin: 10px 0;
   font-size: 0.9em;
   font-family: "Arial", sans-serif;
-  background-color: #f9f9f9;
   overflow-y: auto;
+  border: solid 2px #f5f5f5;
+  border-radius: 10px;
+  background-color: #fbfbfb;
 `;
 
 const TableBlock = styled.div`

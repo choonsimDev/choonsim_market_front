@@ -1,11 +1,12 @@
-import React from 'react';
-import styled from 'styled-components';
-import { useRouter } from 'next/router';
+import React from "react";
+import styled from "styled-components";
+import { useRouter } from "next/router";
 
 const FooterContainer = styled.footer`
   display: flex;
   justify-content: space-around;
   align-items: center;
+  margin-top: 20px;
   padding: 10px 0;
   background-color: #fff;
 `;
@@ -16,36 +17,64 @@ const FooterCell = styled.div`
   align-items: center;
 `;
 
-const Icon = styled.img`
-  width: 30px;
-  height: 30px;
+const Icon = styled.img<{ active: boolean }>`
+  height: 20px;
   cursor: pointer;
+  filter: ${(props) => (props.active ? "none" : "grayscale(100%)")};
 `;
 
-const FooterText = styled.div`
+const FooterText = styled.div<{ active: boolean }>`
   font-size: 12px;
+  font-weight: bold;
+  margin-top: 5px;
+  color: ${(props) => (props.active ? "#0078ff" : "#000")};
 `;
 
 const Footer: React.FC = () => {
   const router = useRouter();
+  const { pathname } = router;
 
   const handleHomeClick = () => {
-    router.push('/');
+    router.push("/");
   };
 
-  const handleCommunityClick = () => {
-    alert('준비중입니다 :)');
+  const handleChartClick = () => {
+    router.push("/chart");
   };
 
   const handleHelpClick = () => {
-    router.push('/help');
+    router.push("/help");
   };
 
   return (
     <FooterContainer>
-      <FooterCell><Icon src="/svg/home.svg" alt="Home" onClick={handleHomeClick} /> <FooterText>Home</FooterText></FooterCell>
-      <FooterCell><Icon src="/svg/community.svg" alt="Community" onClick={handleCommunityClick} /><FooterText>Community</FooterText></FooterCell>
-      <FooterCell><Icon src="/svg/help.svg" alt="Help" onClick={handleHelpClick} /><FooterText>Help</FooterText></FooterCell>
+      <FooterCell>
+        <Icon
+          src="/svg/icon/button_home.png"
+          alt="Home"
+          onClick={handleHomeClick}
+          active={pathname === "/"}
+        />
+        <FooterText active={pathname === "/"}>홈</FooterText>
+      </FooterCell>
+      <FooterCell>
+        <Icon
+          src="/svg/icon/button_graph.png"
+          alt="Community"
+          onClick={handleChartClick}
+          active={pathname === "/chart"}
+        />
+        <FooterText active={pathname === "/chart"}>그래프</FooterText>
+      </FooterCell>
+      <FooterCell>
+        <Icon
+          src="/svg/icon/button_history.png"
+          alt="Help"
+          onClick={handleHelpClick}
+          active={pathname === "/help"}
+        />
+        <FooterText active={pathname === "/help"}>신청 내역</FooterText>
+      </FooterCell>
     </FooterContainer>
   );
 };

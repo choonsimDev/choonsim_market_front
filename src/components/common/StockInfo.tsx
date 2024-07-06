@@ -1,49 +1,62 @@
-import { getTodayStats } from '@/lib/apis/trade';
-import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import { getTodayStats } from "@/lib/apis/trade";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
 
 const StoreInfoBlock = styled.div`
   display: flex;
   flex-direction: column;
+  position: relative;
+  margin-top: 30px;
 `;
 
 const StoreInfoText = styled.div`
-  font-size: 12px;
+  width: 120px;
+  height: 27px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border-radius: 10px;
+  background-color: #0078ff;
+  font-size: 14px;
   font-weight: bold;
-  height: 24px;
+  color: white;
+  position: absolute;
+  top: -14px;
+  left: 14px;
 `;
 
 const StockInfoContainer = styled.div`
   display: flex;
   align-items: center;
   color: #fff;
-  padding: 12px 27px;
-  border: 1px solid #BBBFC1;
-  border-radius: 5px;
+  padding: 20px 20px 10px 20px; /* top, right, bottom, left 순서 */
+  border: 2px solid #f5f5f5;
+  border-radius: 10px;
   justify-content: space-between;
+  background-color: #fbfbfb;
 `;
 
 const PriceContainer = styled.div`
   display: flex;
   flex-direction: column;
-`
+`;
 
 const TodayPrice = styled.div`
   color: black;
-  font-size: 18px;
+  font-size: 22px;
   font-weight: bold;
 `;
 
 const PriceInfo = styled.div<PriceInfoProps>`
   margin-right: auto;
-  color: ${props => (props.isPositive ? '#ff0000' : '#00ff00')};
-  font-size: 14px;
+  color: ${(props) => (props.isPositive ? "#ff0000" : "#0055ff")};
+  font-size: 16px;
   font-weight: bold;
 `;
 
-const CandlestickChart = styled.img`
-`;
+const CandlestickChart = styled.img``;
 
 interface PriceInfoProps {
   isPositive: boolean;
@@ -62,27 +75,32 @@ const StockInfo: React.FC<StockInfoProps> = ({
   percentageChange,
 }) => {
   const isPositive = difference >= 0;
-  const icon = isPositive ? '▲' : '▼';
+  const icon = isPositive ? "▲" : "▼";
   const router = useRouter();
   const handleClickCandlestickChart = () => {
-    if(router.pathname === '/') {
-      router.push('/chart');
+    if (router.pathname === "/") {
+      router.push("/chart");
     } else {
-      router.push('/');
+      router.push("/");
     }
-  }
+  };
 
   return (
     <StoreInfoBlock>
-      <StoreInfoText>오늘 평균 가격:</StoreInfoText>
+      <StoreInfoText>오늘의 평균 가격</StoreInfoText>
       <StockInfoContainer>
         <PriceContainer>
           <TodayPrice>{todayAvgPrice}</TodayPrice>
           <PriceInfo isPositive={isPositive}>
-            {isPositive ? '+' : '-'}{Math.abs(difference)} {icon} {Math.abs(percentageChange).toFixed(2)}% (전일대비)
+            {isPositive ? "+" : "-"}
+            {Math.abs(difference)} {icon}{" "}
+            {Math.abs(percentageChange).toFixed(2)}% (전일대비)
           </PriceInfo>
         </PriceContainer>
-        <CandlestickChart src="/svg/candle-image.svg" onClick={handleClickCandlestickChart}/>
+        <CandlestickChart
+          src="/svg/candle-image.svg"
+          onClick={handleClickCandlestickChart}
+        />
       </StockInfoContainer>
     </StoreInfoBlock>
   );
