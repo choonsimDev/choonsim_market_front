@@ -16,6 +16,7 @@ export interface DataItem {
   username: string;
   accountNumber: string;
   processed: boolean; // Add processed field
+  createdAt: string; // 날짜 정보를 포함하는 필드 추가
 }
 
 interface OptionButtonProps {
@@ -313,15 +314,12 @@ export default OptionButton;
 const OptionButtonContainer = styled.div`
   position: relative;
   display: inline-block;
-  padding-left: 0.5rem;
-  padding-top: 0.1rem;
 `;
 
 const Button = styled.button<{ highlight?: boolean }>`
-  width: 5rem;
-  height: 1.17519rem;
-  padding: 0.2rem;
-  border: 0.392px solid #bbbfc1;
+  width: 90px;
+  height: 20px;
+  border: 1px solid #bbbfc1;
   border-radius: 0.09794rem;
   background: ${({ highlight }) => (highlight ? "#00FFA3" : "#fff")};
   color: #242731;
@@ -346,9 +344,9 @@ const Dropdown = styled.div`
 
 const DropdownItem = styled.div`
   width: 5rem;
-  padding: 0.5rem;
+  padding: 10px;
   font-family: Poppins;
-  font-size: 0.5rem;
+  font-size: 12px;
   font-weight: 500;
   text-align: center;
   color: #242731;

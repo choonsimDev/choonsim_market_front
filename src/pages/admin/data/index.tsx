@@ -25,6 +25,12 @@ const AdminData = () => {
         const { data } = await getAllOrders();
         console.log(data);
 
+        // 데이터를 createdAt 기준으로 내림차순 정렬
+        data.sort(
+          (a: DataItem, b: DataItem) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
         // 이전 데이터와 현재 데이터를 비교하여 새로운 데이터가 있는지 확인
         if (prevOrderData.length > 0) {
           const newItems = data.filter(
@@ -95,7 +101,6 @@ export default AdminData;
 
 const Container = styled.div`
   display: flex;
-  width: 75rem;
   height: 100%;
   background: #fff;
 `;
@@ -106,7 +111,7 @@ const Content = styled.div`
   width: 100%;
   padding: 1rem;
   align-items: left;
-  margin-left: 2rem;
+  margin-left: 20px;
 `;
 
 const StyledModal = styled(Modal)`
