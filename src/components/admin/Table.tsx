@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 import OptionButton, { DataItem } from "./Option";
 import Modal from "./Modal";
 
@@ -8,10 +8,22 @@ interface TableProps {
   data: DataItem[];
 }
 
+// Copy animation
+const copyAnimation = keyframes`
+  0% {
+    background-color: yellow;
+  }
+  100% {
+    background-color: inherit;
+  }
+`;
+
 const Table: React.FC<TableProps> = ({ title, data }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState("");
   const [tableData, setTableData] = useState(data);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   useEffect(() => {
     setTableData(data);
@@ -79,6 +91,17 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
 
   const totalWidth = includeRemainingAmount ? "1646px" : "1598px";
 
+  const copyToClipboard = (text: string, index: number, field: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedIndex(index);
+      setCopiedField(field);
+      setTimeout(() => {
+        setCopiedIndex(null);
+        setCopiedField(null);
+      }, 1000);
+    });
+  };
+
   return (
     <TableContainer style={{ width: totalWidth }}>
       <TableTitle>{title}</TableTitle>
@@ -92,7 +115,11 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
       <DataContainer>
         {tableData.map((item, index) => (
           <DataRow key={index} type={item.type === "BUY" ? "구매" : "판매"}>
-            <DataColumn style={{ width: 100 }}>
+            <DataColumn
+              style={{ width: columnWidths[0] }}
+              onClick={() => copyToClipboard(item.id, index, "id")}
+              isCopied={copiedIndex === index && copiedField === "id"}
+            >
               <OptionButton
                 value={
                   item.status === 0
@@ -118,43 +145,106 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
                 highlight={item.status === 1 && !item.processed}
               />
             </DataColumn>
-            <DataColumn style={{ width: 100 }}>
-              {new Date(item.createdAt).toLocaleString()}{" "}
-              {/* Add createdAt field */}
+            <DataColumn
+              style={{ width: columnWidths[1] }}
+              onClick={() =>
+                copyToClipboard(
+                  new Date(item.createdAt).toLocaleString(),
+                  index,
+                  "createdAt"
+                )
+              }
+              isCopied={copiedIndex === index && copiedField === "createdAt"}
+            >
+              {new Date(item.createdAt).toLocaleString()}
             </DataColumn>
-            <DataColumn style={{ width: 200 }}>{item.id}</DataColumn>
-
-            <DataColumn style={{ width: 50 }}>
+            <DataColumn
+              style={{ width: columnWidths[2] }}
+              onClick={() => copyToClipboard(item.id, index, "id")}
+              isCopied={copiedIndex === index && copiedField === "id"}
+            >
+              {item.id}
+            </DataColumn>
+            <DataColumn
+              style={{ width: columnWidths[3] }}
+              onClick={() =>
+                copyToClipboard(
+                  item.type === "BUY" ? "구매" : "판매",
+                  index,
+                  "type"
+                )
+              }
+              isCopied={copiedIndex === index && copiedField === "type"}
+            >
               {item.type === "BUY" ? "구매" : "판매"}
             </DataColumn>
-            <DataColumn style={{ width: columnWidths[4] }}>
+            <DataColumn
+              style={{ width: columnWidths[4] }}
+              onClick={() =>
+                copyToClipboard(item.price.toString(), index, "price")
+              }
+              isCopied={copiedIndex === index && copiedField === "price"}
+            >
               {item.price}
             </DataColumn>
-            <DataColumn style={{ width: columnWidths[5] }}>
+            <DataColumn
+              style={{ width: columnWidths[5] }}
+              onClick={() =>
+                copyToClipboard(item.amount.toString(), index, "amount")
+              }
+              isCopied={copiedIndex === index && copiedField === "amount"}
+            >
               {item.amount}
             </DataColumn>
             {includeRemainingAmount && (
-              <RemainingAmountColumn style={{ width: columnWidths[6] }}>
+              <RemainingAmountColumn
+                style={{ width: columnWidths[6] }}
+                onClick={() =>
+                  copyToClipboard(
+                    item.remainingAmount.toString(),
+                    index,
+                    "remainingAmount"
+                  )
+                }
+                isCopied={
+                  copiedIndex === index && copiedField === "remainingAmount"
+                }
+              >
                 {item.remainingAmount}
               </RemainingAmountColumn>
             )}
             <DataColumn
               style={{ width: columnWidths[includeRemainingAmount ? 7 : 6] }}
+              onClick={() => copyToClipboard(item.nickname, index, "nickname")}
+              isCopied={copiedIndex === index && copiedField === "nickname"}
             >
               {item.nickname}
             </DataColumn>
             <DataColumn
               style={{ width: columnWidths[includeRemainingAmount ? 8 : 7] }}
+              onClick={() =>
+                copyToClipboard(item.phoneNumber, index, "phoneNumber")
+              }
+              isCopied={copiedIndex === index && copiedField === "phoneNumber"}
             >
               {item.phoneNumber}
             </DataColumn>
             <DataColumn
               style={{ width: columnWidths[includeRemainingAmount ? 9 : 8] }}
-              onClick={() => handleAddressClick(item.blockchainAddress)}
               title={
                 item.blockchainAddress.length > 34
                   ? item.blockchainAddress
                   : undefined
+              }
+              onClick={() =>
+                copyToClipboard(
+                  item.blockchainAddress,
+                  index,
+                  "blockchainAddress"
+                )
+              }
+              isCopied={
+                copiedIndex === index && copiedField === "blockchainAddress"
               }
             >
               {item.blockchainAddress.length > 34
@@ -163,16 +253,26 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
             </DataColumn>
             <DataColumn
               style={{ width: columnWidths[includeRemainingAmount ? 10 : 9] }}
+              onClick={() => copyToClipboard(item.bankName, index, "bankName")}
+              isCopied={copiedIndex === index && copiedField === "bankName"}
             >
               {item.bankName}
             </DataColumn>
             <DataColumn
               style={{ width: columnWidths[includeRemainingAmount ? 11 : 10] }}
+              onClick={() => copyToClipboard(item.username, index, "username")}
+              isCopied={copiedIndex === index && copiedField === "username"}
             >
               {item.username}
             </DataColumn>
             <DataColumn
               style={{ width: columnWidths[includeRemainingAmount ? 12 : 11] }}
+              onClick={() =>
+                copyToClipboard(item.accountNumber, index, "accountNumber")
+              }
+              isCopied={
+                copiedIndex === index && copiedField === "accountNumber"
+              }
             >
               {item.accountNumber}
             </DataColumn>
@@ -250,7 +350,7 @@ const DataRow = styled.div<{ type: string }>`
   }
 `;
 
-const DataColumn = styled.div`
+const DataColumn = styled.div<{ isCopied: boolean }>`
   color: #000;
   text-align: center;
   font-family: Inter;
@@ -261,10 +361,17 @@ const DataColumn = styled.div`
   flex-shrink: 0;
   border-right: 1px solid rgba(0, 0, 0, 0.2);
   border-left: 1px solid rgba(0, 0, 0, 0.2);
-
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  background-color: ${({ isCopied }) => (isCopied ? "yellow" : "inherit")};
+  animation: ${({ isCopied }) =>
+    isCopied
+      ? css`
+          ${copyAnimation} 1s
+        `
+      : "none"};
 `;
 
 const RemainingAmountColumn = styled(DataColumn)`
