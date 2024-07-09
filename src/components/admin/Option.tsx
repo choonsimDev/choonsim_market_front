@@ -2,6 +2,231 @@ import styled from "styled-components";
 import React, { useState } from "react";
 import { matchOrders, updateOrderStatus, processOrder } from "@/lib/apis/order";
 
+const OptionButtonContainer = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const Button = styled.button<{ highlight?: boolean }>`
+  width: 90px;
+  height: 20px;
+  border: 1px solid #bbbfc1;
+  border-radius: 0.09794rem;
+  background: ${({ highlight }) => (highlight ? "#00FFA3" : "#fff")};
+  color: #242731;
+  font-family: Poppins;
+  font-size: 0.5rem;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+`;
+
+const Dropdown = styled.div`
+  position: absolute;
+  top: 0;
+  left: 100%;
+  margin-left: 0rem;
+  background: #fff;
+  border: 0.392px solid #bbbfc1;
+  border-radius: 0.09794rem;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+`;
+
+const DropdownItem = styled.div`
+  width: 5rem;
+  padding: 10px;
+  font-family: Poppins;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  color: #242731;
+  cursor: pointer;
+  &:hover {
+    background: #faff00;
+  }
+`;
+
+const Backdrop = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+`;
+
+const PopupContainer = styled.div`
+  width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0.5rem;
+`;
+
+const Popup = styled.div`
+  width: 100%;
+  height: 100%;
+  border-radius: 0.3125rem;
+  background: #fff;
+  padding: 0.5rem 0.8rem;
+`;
+
+const PopupText = styled.p`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  width: 21.875rem;
+  color: #575f6e;
+  font-family: Poppins;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.75rem; /* 140% */
+  padding-left: 1rem;
+  margin: 0.8rem 0;
+`;
+
+const HighlightedBuy = styled.span`
+  color: #f00;
+  font-family: Poppins;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.75rem;
+`;
+
+const HighlightedSell = styled.span`
+  color: #0038ff;
+  font-family: Poppins;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.75rem;
+`;
+
+const CloseButton = styled.button`
+  display: inline-flex;
+  height: 3rem;
+  padding: 0rem 1.5rem 0rem 1.5rem;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 0.25rem;
+  border: 1px solid #bbbfc1;
+  background: #fff;
+  color: #000;
+  text-align: center;
+  font-family: Poppins;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.5rem; /* 150% */
+  text-transform: capitalize;
+`;
+
+const ButtonContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+`;
+
+const BlockChainAddressContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+`;
+
+const BlockChainAddress = styled.p`
+  display: flex;
+  width: 21.875rem;
+  height: 2.44331rem;
+  flex-direction: column;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #0038ff;
+  font-family: Inter;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  text-align: center;
+  margin: 0;
+`;
+
+const CopyButton = styled.div`
+  display: flex;
+  width: 3.6875rem;
+  height: 1.75738rem;
+  flex-direction: column;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #757575;
+  text-align: center;
+  font-family: Poppins;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.5rem; /* 150% */
+  text-transform: capitalize;
+  transition: color 0.3s;
+
+  cursor: pointer;
+  &:hover {
+    color: #000;
+    text-decoration: underline;
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+`;
+
+const BankInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  color: #dba8a8;
+  font-family: Inter;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  padding-left: 1rem;
+  margin-bottom: 1rem;
+`;
+
+const SubText = styled.p`
+  display: flex;
+  flex-direction: row;
+  font-family: Poppins;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.75rem;
+  margin: 0;
+`;
+
+const Textarea = styled.textarea`
+  width: 100%;
+  height: 5rem;
+  border: 1px solid #bbbfc1;
+  border-radius: 0.25rem;
+  font-family: Poppins;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.5rem; /* 150% */
+  resize: none;
+`;
+
 export interface DataItem {
   id: string;
   type: "BUY" | "SELL";
@@ -310,227 +535,3 @@ const OptionButton: React.FC<OptionButtonProps> = ({
 };
 
 export default OptionButton;
-
-const OptionButtonContainer = styled.div`
-  position: relative;
-  display: inline-block;
-`;
-
-const Button = styled.button<{ highlight?: boolean }>`
-  width: 90px;
-  height: 20px;
-  border: 1px solid #bbbfc1;
-  border-radius: 0.09794rem;
-  background: ${({ highlight }) => (highlight ? "#00FFA3" : "#fff")};
-  color: #242731;
-  font-family: Poppins;
-  font-size: 0.5rem;
-  font-weight: 500;
-  text-align: center;
-  cursor: pointer;
-`;
-
-const Dropdown = styled.div`
-  position: absolute;
-  top: 0;
-  left: 100%;
-  margin-left: 0rem;
-  background: #fff;
-  border: 0.392px solid #bbbfc1;
-  border-radius: 0.09794rem;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 1;
-`;
-
-const DropdownItem = styled.div`
-  width: 5rem;
-  padding: 10px;
-  font-family: Poppins;
-  font-size: 12px;
-  font-weight: 500;
-  text-align: center;
-  color: #242731;
-  cursor: pointer;
-  &:hover {
-    background: #faff00;
-  }
-`;
-
-const Backdrop = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(5px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2;
-`;
-
-const PopupContainer = styled.div`
-  width: 24.6875rem;
-  display: flex;
-  gap: 1rem;
-  padding: 0.5rem;
-`;
-
-const Popup = styled.div`
-  width: 24.6875rem;
-  height: 100%;
-  border-radius: 0.3125rem;
-  background: #fff;
-  padding: 0.5rem 0.8rem;
-`;
-
-const PopupText = styled.p`
-  display: flex;
-  flex-direction: row;
-  gap: 0.5rem;
-  width: 21.875rem;
-  color: #575f6e;
-  font-family: Poppins;
-  font-size: 1.25rem;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 1.75rem; /* 140% */
-  padding-left: 1rem;
-  margin: 0.8rem 0;
-`;
-
-const HighlightedBuy = styled.span`
-  color: #f00;
-  font-family: Poppins;
-  font-size: 1.25rem;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 1.75rem;
-`;
-
-const HighlightedSell = styled.span`
-  color: #0038ff;
-  font-family: Poppins;
-  font-size: 1.25rem;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 1.75rem;
-`;
-
-const CloseButton = styled.button`
-  display: inline-flex;
-  height: 3rem;
-  padding: 0rem 1.5rem 0rem 1.5rem;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
-  border-radius: 0.25rem;
-  border: 1px solid #bbbfc1;
-  background: #fff;
-  color: #000;
-  text-align: center;
-  font-family: Poppins;
-  font-size: 1rem;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 1.5rem; /* 150% */
-  text-transform: capitalize;
-`;
-
-const ButtonContainer = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-`;
-
-const BlockChainAddressContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 1rem;
-`;
-
-const BlockChainAddress = styled.p`
-  display: flex;
-  width: 21.875rem;
-  height: 2.44331rem;
-  flex-direction: column;
-  justify-content: center;
-  flex-shrink: 0;
-  color: #0038ff;
-  font-family: Inter;
-  font-size: 1.25rem;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  text-align: center;
-  margin: 0;
-`;
-
-const CopyButton = styled.div`
-  display: flex;
-  width: 3.6875rem;
-  height: 1.75738rem;
-  flex-direction: column;
-  justify-content: center;
-  flex-shrink: 0;
-  color: #757575;
-  text-align: center;
-  font-family: Poppins;
-  font-size: 1rem;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 1.5rem; /* 150% */
-  text-transform: capitalize;
-  transition: color 0.3s;
-
-  cursor: pointer;
-  &:hover {
-    color: #000;
-    text-decoration: underline;
-  }
-
-  &:active {
-    transform: translateY(1px);
-  }
-`;
-
-const BankInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  color: #dba8a8;
-  font-family: Inter;
-  font-size: 1.25rem;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  padding-left: 1rem;
-  margin-bottom: 1rem;
-`;
-
-const SubText = styled.p`
-  display: flex;
-  flex-direction: row;
-  font-family: Poppins;
-  font-size: 1.25rem;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 1.75rem;
-  margin: 0;
-`;
-
-const Textarea = styled.textarea`
-  width: 100%;
-  height: 5rem;
-  border: 1px solid #bbbfc1;
-  border-radius: 0.25rem;
-  font-family: Poppins;
-  font-size: 1rem;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 1.5rem; /* 150% */
-  resize: none;
-`;

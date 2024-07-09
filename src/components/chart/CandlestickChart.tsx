@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import styled from "styled-components";
 import { ApexOptions } from "apexcharts";
 import { getDailyTradeStats } from "@/lib/apis/trade";
+import Select from "react-select";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -30,19 +31,15 @@ const ButtonContainer = styled.div`
   justify-content: flex-end;
 `;
 
-const Button = styled.button`
-  margin-right: 8px;
-  padding: 8px 16px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0056b3;
-  }
+const DropdownContainer = styled.div`
+  width: 150px;
 `;
+
+const selectOptions = [
+  { value: "daily", label: "일간" },
+  { value: "weekly", label: "주간" },
+  { value: "monthly", label: "월간" },
+];
 
 interface TradeData {
   date: string;
@@ -195,7 +192,12 @@ const CandlestickChart: React.FC = () => {
     setTimeframe(timeframe);
   };
 
-  const options: ApexOptions = {
+  const handleChange = (selectedOption: any) => {
+    setTimeframe(selectedOption.value);
+    updateChart(selectedOption.value, originalData);
+  };
+
+  const chartOptions: ApexOptions = {
     chart: {
       height: 500,
       toolbar: {
@@ -288,19 +290,17 @@ const CandlestickChart: React.FC = () => {
       <TitleContainer>
         <div>MOBICK/WON</div>
         <ButtonContainer>
-          <Button onClick={() => updateChart("daily", originalData)}>
-            Day
-          </Button>
-          <Button onClick={() => updateChart("weekly", originalData)}>
-            Week
-          </Button>
-          <Button onClick={() => updateChart("monthly", originalData)}>
-            Month
-          </Button>
+          <DropdownContainer>
+            <Select
+              options={selectOptions}
+              value={selectOptions.find((option) => option.value === timeframe)}
+              onChange={handleChange}
+            />
+          </DropdownContainer>
         </ButtonContainer>
       </TitleContainer>
       <ReactApexChart
-        options={options}
+        options={chartOptions}
         series={series}
         type="candlestick"
         height={250}

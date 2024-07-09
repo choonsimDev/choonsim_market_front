@@ -17,12 +17,6 @@ export const ChartComponent = () => {
       <StockInfoWrapper />
       <CandlestickChart />
       <CandlestickBTCChart />
-      <SecondaryButton
-        onClick={() => {
-          router.push("/create-order");
-        }}
-        text="심부름 신청하기"
-      />
     </ChartComponentBlock>
   );
 };

@@ -6,20 +6,22 @@ import { useRouter } from "next/router";
 
 const TableContainer = styled.div`
   width: 100%;
-  max-height: 500px;
   margin: 10px 0;
-  font-size: 0.9em;
+  font-size: 0.875rem;
   font-family: "Arial", sans-serif;
   overflow-y: auto;
   border: solid 2px #f5f5f5;
   border-radius: 10px;
   background-color: #fbfbfb;
+  display: flex;
+  flex-direction: column;
 `;
 
 const TableBlock = styled.div`
-  padding-top: 18px;
-  padding-bottom: 18px;
+  padding-top: 1.125rem;
+  padding-bottom: 1.125rem;
   font-weight: bold;
+  flex-grow: 1; /* Allow it to grow to take up available space */
 `;
 
 const TableHead = styled.div`
@@ -32,11 +34,15 @@ const TableHead = styled.div`
 const TableHeader = styled.div<{ $isBuy?: boolean; $isSell?: boolean }>`
   width: 100px;
   text-align: center;
+  font-size: 1.125rem;
   padding: 10px 0;
   color: ${(props) => (props.$isBuy ? "red" : props.$isSell ? "blue" : "#333")};
 `;
 
-const TableBody = styled.div``;
+const TableBody = styled.div`
+  height: 45vh;
+  overflow-y: auto;
+`;
 
 const TableRow = styled.div`
   display: flex;

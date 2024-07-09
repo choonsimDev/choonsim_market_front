@@ -1,6 +1,6 @@
-import { useRouter } from 'next/router';
-import React from 'react';
-import styled from 'styled-components';
+import { useRouter } from "next/router";
+import React from "react";
+import styled from "styled-components";
 
 const HeaderContainer = styled.header`
   display: flex;
@@ -10,17 +10,24 @@ const HeaderContainer = styled.header`
   background-color: #fff;
 `;
 
-const Logo = styled.img`
-`;
+const Logo = styled.img``;
 
 const CreateOrderHeader: React.FC = () => {
-    const router = useRouter();
-    return (
-        <HeaderContainer>
-            <div><Logo src="/svg/logo.svg" alt="Logo" /></div>
-            <div onClick={() => {router.push("/create-order")}}><img src="/svg/back.svg" alt="뒤로 가기" /></div>
-        </HeaderContainer>
-    );
+  const router = useRouter();
+  return (
+    <HeaderContainer>
+      <div>
+        <Logo src="/svg/logo.svg" alt="Logo" />
+      </div>
+      <div
+        onClick={() => {
+          router.push("/");
+        }}
+      >
+        <img src="/svg/back.svg" alt="뒤로 가기" />
+      </div>
+    </HeaderContainer>
+  );
 };
 
 export default CreateOrderHeader;
