@@ -22,7 +22,7 @@ const Logo = styled.img`
 `;
 
 const Title = styled.div`
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: bold;
 `;
 

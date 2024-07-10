@@ -3,7 +3,6 @@ import dynamic from "next/dynamic";
 import styled from "styled-components";
 import { ApexOptions } from "apexcharts";
 import { getDailyTradeStats } from "@/lib/apis/trade";
-import Select from "react-select";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -27,19 +26,48 @@ const TitleContainer = styled.div`
 const ButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-content: flex-end;
+  position: relative;
 `;
 
-const DropdownContainer = styled.div`
-  width: 150px;
+const DropdownButton = styled.button`
+  padding: 8px 16px;
+  color: #646464;
+  border: none;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  border: 1px solid #ededed;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  &:hover {
+    background-color: #ededede7;
+  }
 `;
 
-const selectOptions = [
-  { value: "daily", label: "일간" },
-  { value: "weekly", label: "주간" },
-  { value: "monthly", label: "월간" },
-];
+const DropdownMenu = styled.div<{ show: boolean }>`
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  display: ${(props) => (props.show ? "block" : "none")};
+  font-size: 12px;
+  color: #646464;
+`;
+
+const DropdownItem = styled.div`
+  padding: 8px 16px;
+  color: #646464;
+
+  cursor: pointer;
+  &:hover {
+    background-color: #ccc;
+  }
+`;
 
 interface TradeData {
   date: string;
@@ -81,6 +109,7 @@ const CandlestickChart: React.FC = () => {
   const [maxVolume, setMaxVolume] = useState(0);
   const [timeframe, setTimeframe] = useState("daily");
   const [originalData, setOriginalData] = useState<TradeData[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     const run = async () => {
@@ -192,12 +221,17 @@ const CandlestickChart: React.FC = () => {
     setTimeframe(timeframe);
   };
 
-  const handleChange = (selectedOption: any) => {
-    setTimeframe(selectedOption.value);
-    updateChart(selectedOption.value, originalData);
+  const handleDropdownClick = () => {
+    setShowDropdown(!showDropdown);
   };
 
-  const chartOptions: ApexOptions = {
+  const handleOptionClick = (option: string) => {
+    setTimeframe(option);
+    updateChart(option, originalData);
+    setShowDropdown(false);
+  };
+
+  const options: ApexOptions = {
     chart: {
       height: 500,
       toolbar: {
@@ -290,17 +324,29 @@ const CandlestickChart: React.FC = () => {
       <TitleContainer>
         <div>MOBICK/WON</div>
         <ButtonContainer>
-          <DropdownContainer>
-            <Select
-              options={selectOptions}
-              value={selectOptions.find((option) => option.value === timeframe)}
-              onChange={handleChange}
-            />
-          </DropdownContainer>
+          <DropdownButton onClick={handleDropdownClick}>
+            {timeframe === "daily"
+              ? "일간"
+              : timeframe === "weekly"
+              ? "주간"
+              : "월간"}{" "}
+            ▼
+          </DropdownButton>
+          <DropdownMenu show={showDropdown}>
+            <DropdownItem onClick={() => handleOptionClick("daily")}>
+              일간
+            </DropdownItem>
+            <DropdownItem onClick={() => handleOptionClick("weekly")}>
+              주간
+            </DropdownItem>
+            <DropdownItem onClick={() => handleOptionClick("monthly")}>
+              월간
+            </DropdownItem>
+          </DropdownMenu>
         </ButtonContainer>
       </TitleContainer>
       <ReactApexChart
-        options={chartOptions}
+        options={options}
         series={series}
         type="candlestick"
         height={250}

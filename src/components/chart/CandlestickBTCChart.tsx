@@ -26,20 +26,46 @@ const TitleContainer = styled.div`
 const ButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
+  align-items: flex-start;
   justify-content: flex-end;
+  position: relative;
 `;
 
-const Button = styled.button`
-  margin-right: 8px;
+const DropdownButton = styled.button`
   padding: 8px 16px;
-  background-color: #007bff;
-  color: white;
+  color: #646464;
   border: none;
   border-radius: 4px;
+  background-color: #f8f8f8;
+  border: 1px solid #ededed;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-
   &:hover {
-    background-color: #0056b3;
+    background-color: #ededede7;
+  }
+`;
+
+const DropdownMenu = styled.div<{ show: boolean }>`
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  display: ${(props) => (props.show ? "block" : "none")};
+  font-size: 12px;
+  color: #646464;
+`;
+
+const DropdownItem = styled.div`
+  padding: 8px 16px;
+  color: #646464;
+
+  cursor: pointer;
+  &:hover {
+    background-color: #ccc;
   }
 `;
 
@@ -89,6 +115,7 @@ const CandlestickBTCChart: React.FC = () => {
   const [maxRatio, setMaxRatio] = useState(0);
   const [timeframe, setTimeframe] = useState("daily");
   const [originalData, setOriginalData] = useState<CombinedData[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false); // 추가된 부분
 
   useEffect(() => {
     const run = async () => {
@@ -189,6 +216,16 @@ const CandlestickBTCChart: React.FC = () => {
     setTimeframe(timeframe);
   };
 
+  const handleDropdownClick = () => {
+    setShowDropdown(!showDropdown);
+  };
+
+  const handleOptionClick = (option: string) => {
+    setTimeframe(option);
+    updateChart(option, originalData);
+    setShowDropdown(false);
+  };
+
   const options: ApexOptions = {
     chart: {
       height: 500,
@@ -270,15 +307,25 @@ const CandlestickBTCChart: React.FC = () => {
       <TitleContainer>
         <div>MOBICK/BTC</div>
         <ButtonContainer>
-          <Button onClick={() => updateChart("daily", originalData)}>
-            Day
-          </Button>
-          <Button onClick={() => updateChart("weekly", originalData)}>
-            Week
-          </Button>
-          <Button onClick={() => updateChart("monthly", originalData)}>
-            Month
-          </Button>
+          <DropdownButton onClick={handleDropdownClick}>
+            {timeframe === "daily"
+              ? "일간"
+              : timeframe === "weekly"
+              ? "주간"
+              : "월간"}{" "}
+            ▼
+          </DropdownButton>
+          <DropdownMenu show={showDropdown}>
+            <DropdownItem onClick={() => handleOptionClick("daily")}>
+              일간
+            </DropdownItem>
+            <DropdownItem onClick={() => handleOptionClick("weekly")}>
+              주간
+            </DropdownItem>
+            <DropdownItem onClick={() => handleOptionClick("monthly")}>
+              월간
+            </DropdownItem>
+          </DropdownMenu>
         </ButtonContainer>
       </TitleContainer>
       <ReactApexChart
