@@ -11,15 +11,47 @@ const TableContainer = styled.div`
   width: 100%;
   max-height: 600px;
   overflow-y: auto;
-  margin: 10px 0;
-  font-size: 0.9em;
-  font-family: "Arial", sans-serif;
-  background-color: #e2e2e2;
+  margin: 24px 0;
+`;
+
+const FilterContainer = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  gap: 4px;
+  height: 33px;
+  margin-bottom: 8px;
+`;
+
+const FilterButton = styled.button<{ active: boolean }>`
+  font-size: 0.75rem;
+  color: #333;
+  padding: 8px 8px;
+  border-radius: 8px;
+
+  border: #ededed 1px solid;
+  background-color: ${(props) => (props.active ? "#0078ff" : "#efefef")};
+  color: ${(props) => (props.active ? "#fff" : "#000")};
+  cursor: pointer;
+  &:hover {
+    background-color: ${(props) => (props.active ? "#0078ff" : "#efefef")};
+  }
 `;
 
 const TableBlock = styled.div`
-  padding: 18px 0;
-  font-weight: bold;
+  background-color: #f8f8f8;
+  border: 1px solid #ededed;
+  border-radius: 8px;
+  padding: 16px 8px 10px 8px;
+  font-size: 1rem;
+`;
+
+const DateHeaderBlock = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+const DateHeader = styled.div`
+  padding: 10px 10px;
+  color: #c4c4c4;
 `;
 
 const TableHead = styled.div`
@@ -32,31 +64,63 @@ const TableHead = styled.div`
 const TableHeader = styled.div`
   flex: 1;
   text-align: center;
-  padding: 10px 0;
+  padding: 0.625rem 0px 0.625rem 0px;
+  border-bottom: 0.125rem solid #ededed;
 `;
 
 const TableBody = styled.div``;
 
 const TableRow = styled.div`
   display: flex;
+  align-items: center;
   justify-content: space-around;
+  height: 35px;
+  border-bottom: 0.0625rem solid #ededed;
+  cursor: pointer;
 `;
 
 const TableCell = styled.div<StatusProps>`
   flex: 1;
   text-align: center;
-  padding: 10px 0;
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: 0.875rem;
+  border-radius: 8px;
+  border: ${(props) =>
+    props.status === 0
+      ? "1px solid #fe4e48"
+      : props.status === 1
+      ? "1px solid #0078ff"
+      : props.status === 2
+      ? "1px solid #14B998"
+      : props.status === 3
+      ? "1px solid #646464"
+      : "none"};
   color: ${(props) =>
     props.status === 0
-      ? "#FF0000"
+      ? "#fe4e48"
       : props.status === 1
-      ? "#00FFA3"
+      ? "#0078ff"
+      : props.status === 2
+      ? "#14B998"
       : props.status === 3
-      ? "rgb(0,0,0,0.5)"
+      ? "#646464"
       : "black"};
+  height: ${(props) =>
+    props.status === 0 ||
+    props.status === 1 ||
+    props.status === 2 ||
+    props.status === 3
+      ? "1.5rem"
+      : "auto"};
+  padding: ${(props) =>
+    props.status === 0 ||
+    props.status === 1 ||
+    props.status === 2 ||
+    props.status === 3
+      ? "0.125rem"
+      : "auto"};
 `;
 
 const CustomModal = styled(Modal)`
@@ -89,7 +153,7 @@ const CustomInput = styled.input`
 `;
 
 const Label = styled.label`
-  font-size: 14px;
+  font-size: 0.875rem;
   color: #333;
 `;
 
@@ -122,7 +186,10 @@ interface StatusProps {
 }
 
 function maskNickname(nickname: string) {
-  return `${nickname[0]}${"*".repeat(nickname.length - 1)}`;
+  if (nickname.length === 0) {
+    return "";
+  }
+  return `${nickname[0]}**`;
 }
 
 function formatStatus(status: number) {
@@ -132,7 +199,7 @@ function formatStatus(status: number) {
     case 1:
       return "신청 완료";
     case 2:
-      return "신청 완료";
+      return "심부름 완료";
     case 3:
       return "반환";
     default:
@@ -140,20 +207,37 @@ function formatStatus(status: number) {
   }
 }
 
+function getTodayDate() {
+  const today = new Date();
+  const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const date = String(today.getDate()).padStart(2, "0");
+  const day = dayNames[today.getDay()];
+  return `${year}-${month}-${date}(${day})`;
+}
+
 const TodayOrderTable: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [nicknameInput, setNicknameInput] = useState("");
   const [phoneNumberInput, setPhoneNumberInput] = useState("");
+  const [activeFilter, setActiveFilter] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
       const { data } = await getTodayOrders();
       setOrders(data);
+      setFilteredOrders(data);
     };
+
     fetchOrders();
+    const interval = setInterval(fetchOrders, 5000);
+
+    return () => clearInterval(interval); // Clean up interval on component unmount
   }, []);
 
   const handleRowClick = (order: Order) => {
@@ -174,16 +258,60 @@ const TodayOrderTable: React.FC = () => {
     }
   };
 
+  const handleFilterClick = (status: number | null) => {
+    setActiveFilter(status);
+    if (status === null) {
+      setFilteredOrders(orders);
+    } else {
+      setFilteredOrders(orders.filter((order) => order.status === status));
+    }
+  };
+
   return (
     <TableContainer>
+      <FilterContainer>
+        <FilterButton
+          active={activeFilter === null}
+          onClick={() => handleFilterClick(null)}
+        >
+          전체
+        </FilterButton>
+        <FilterButton
+          active={activeFilter === 0}
+          onClick={() => handleFilterClick(0)}
+        >
+          입금 확인중
+        </FilterButton>
+        <FilterButton
+          active={activeFilter === 1}
+          onClick={() => handleFilterClick(1)}
+        >
+          신청 완료
+        </FilterButton>
+        <FilterButton
+          active={activeFilter === 2}
+          onClick={() => handleFilterClick(2)}
+        >
+          심부름 완료
+        </FilterButton>
+        <FilterButton
+          active={activeFilter === 3}
+          onClick={() => handleFilterClick(3)}
+        >
+          반환
+        </FilterButton>
+      </FilterContainer>
       <TableBlock>
+        <DateHeaderBlock>
+          <DateHeader>접수기준 {getTodayDate()}</DateHeader>
+        </DateHeaderBlock>
         <TableHead>
-          <TableHeader>주문번호</TableHeader>
-          <TableHeader>닉네임</TableHeader>
-          <TableHeader>현재상태</TableHeader>
+          <TableHeader>접수 번호</TableHeader>
+          <TableHeader>신청 닉네임</TableHeader>
+          <TableHeader>현재 상태</TableHeader>
         </TableHead>
         <TableBody>
-          {orders.map((order) => (
+          {filteredOrders.map((order) => (
             <TableRow key={order.id} onClick={() => handleRowClick(order)}>
               <TableCell style={{ fontSize: "8px" }}>{order.id}</TableCell>
               <TableCell>{maskNickname(order.nickname)}</TableCell>

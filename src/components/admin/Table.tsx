@@ -3,11 +3,98 @@ import styled, { keyframes, css } from "styled-components";
 import OptionButton, { DataItem } from "./Option";
 import Modal from "./Modal";
 
+const TableContainer = styled.div`
+  flex-shrink: 0;
+  margin-bottom: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+`;
+
+const TableTitle = styled.div`
+  font-family: Raleway;
+  font-size: 1.28681rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.44769rem;
+  text-align: left;
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
+`;
+
+const ColumnContainer = styled.div`
+  display: flex;
+  width: 100%;
+  height: 1.76956rem;
+  flex-shrink: 0;
+  border: 0.858px solid rgba(0, 0, 0, 0.2);
+  background: #fff;
+`;
+
+const Column = styled.div`
+  color: #000;
+  text-align: center;
+  font-family: Inter;
+  font-size: 0.73025rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  flex-shrink: 0;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const DataContainer = styled.div`
+  width: 100%;
+`;
+
+const DataRow = styled.div<{ type: string }>`
+  display: flex;
+  width: 100%;
+  height: 30px;
+  flex-shrink: 0;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: ${({ type }) =>
+    type === "구매" ? "rgba(255, 0, 0, 0.20)" : "rgba(0, 0, 255, 0.20)"};
+  &:hover {
+    background: ${({ type }) =>
+      type === "구매" ? "rgba(255, 0, 0, 0.50)" : "rgba(0, 0, 255, 0.50)"};
+  }
+`;
+
+const DataColumn = styled.div<{ isCopied?: boolean }>`
+  color: #000;
+  text-align: center;
+  font-family: Inter;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(0, 0, 0, 0.2);
+  border-left: 1px solid rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: ${({ isCopied }) => (isCopied ? "yellow" : "inherit")};
+  animation: ${({ isCopied }) =>
+    isCopied
+      ? css`
+          ${copyAnimation} 1s
+        `
+      : "none"};
+`;
+
+const RemainingAmountColumn = styled(DataColumn)`
+  color: #00c880;
+`;
+
 interface TableProps {
   title: string;
   data: DataItem[];
 }
-
 // Copy animation
 const copyAnimation = keyframes`
   0% {
@@ -115,11 +202,7 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
       <DataContainer>
         {tableData.map((item, index) => (
           <DataRow key={index} type={item.type === "BUY" ? "구매" : "판매"}>
-            <DataColumn
-              style={{ width: columnWidths[0] }}
-              onClick={() => copyToClipboard(item.id, index, "id")}
-              isCopied={copiedIndex === index && copiedField === "id"}
-            >
+            <DataColumn style={{ width: columnWidths[0] }}>
               <OptionButton
                 value={
                   item.status === 0
@@ -145,6 +228,7 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
                 highlight={item.status === 1 && !item.processed}
               />
             </DataColumn>
+
             <DataColumn
               style={{ width: columnWidths[1] }}
               onClick={() =>
@@ -289,91 +373,3 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
 };
 
 export default Table;
-
-const TableContainer = styled.div`
-  flex-shrink: 0;
-  margin-bottom: 1rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-`;
-
-const TableTitle = styled.div`
-  font-family: Raleway;
-  font-size: 1.28681rem;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 1.44769rem;
-  text-align: left;
-  margin-bottom: 0.5rem;
-  padding-left: 0.5rem;
-`;
-
-const ColumnContainer = styled.div`
-  display: flex;
-  width: 100%;
-  height: 1.76956rem;
-  flex-shrink: 0;
-  border: 0.858px solid rgba(0, 0, 0, 0.2);
-  background: #fff;
-`;
-
-const Column = styled.div`
-  color: #000;
-  text-align: center;
-  font-family: Inter;
-  font-size: 0.73025rem;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  flex-shrink: 0;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const DataContainer = styled.div`
-  width: 100%;
-`;
-
-const DataRow = styled.div<{ type: string }>`
-  display: flex;
-  width: 100%;
-  height: 30px;
-  flex-shrink: 0;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  background: ${({ type }) =>
-    type === "구매" ? "rgba(255, 0, 0, 0.20)" : "rgba(0, 0, 255, 0.20)"};
-  &:hover {
-    background: ${({ type }) =>
-      type === "구매" ? "rgba(255, 0, 0, 0.50)" : "rgba(0, 0, 255, 0.50)"};
-  }
-`;
-
-const DataColumn = styled.div<{ isCopied: boolean }>`
-  color: #000;
-  text-align: center;
-  font-family: Inter;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  flex-shrink: 0;
-  border-right: 1px solid rgba(0, 0, 0, 0.2);
-  border-left: 1px solid rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  background-color: ${({ isCopied }) => (isCopied ? "yellow" : "inherit")};
-  animation: ${({ isCopied }) =>
-    isCopied
-      ? css`
-          ${copyAnimation} 1s
-        `
-      : "none"};
-`;
-
-const RemainingAmountColumn = styled(DataColumn)`
-  color: #00c880;
-`;
