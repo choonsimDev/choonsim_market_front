@@ -24,10 +24,10 @@ const FilterContainer = styled.div`
 
 const FilterButton = styled.button<{ active: boolean }>`
   font-size: 0.75rem;
-  color: #333;
+  font-weight: bold;
+  color: #646464;
   padding: 8px 8px;
   border-radius: 8px;
-
   border: #ededed 1px solid;
   background-color: ${(props) => (props.active ? "#0078ff" : "#efefef")};
   color: ${(props) => (props.active ? "#fff" : "#000")};
@@ -49,6 +49,7 @@ const DateHeaderBlock = styled.div`
   display: flex;
   justify-content: flex-end;
 `;
+
 const DateHeader = styled.div`
   padding: 10px 10px;
   color: #c4c4c4;
@@ -68,25 +69,20 @@ const TableHeader = styled.div`
   border-bottom: 0.125rem solid #ededed;
 `;
 
-const TableBody = styled.div``;
-
-const TableRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  height: 35px;
-  border-bottom: 0.0625rem solid #ededed;
-  cursor: pointer;
+const TableBody = styled.div`
+  :hover {
+    background-color: #f2f2f2;
+  }
 `;
 
 const TableCell = styled.div<StatusProps>`
-  flex: 1;
   text-align: center;
-  display: flex;
+  display: inline-block;
   justify-content: center;
   align-items: center;
   font-size: 0.875rem;
   border-radius: 8px;
+
   border: ${(props) =>
     props.status === 0
       ? "1px solid #fe4e48"
@@ -97,6 +93,7 @@ const TableCell = styled.div<StatusProps>`
       : props.status === 3
       ? "1px solid #646464"
       : "none"};
+
   color: ${(props) =>
     props.status === 0
       ? "#fe4e48"
@@ -107,20 +104,41 @@ const TableCell = styled.div<StatusProps>`
       : props.status === 3
       ? "#646464"
       : "black"};
-  height: ${(props) =>
-    props.status === 0 ||
-    props.status === 1 ||
-    props.status === 2 ||
-    props.status === 3
-      ? "1.5rem"
-      : "auto"};
+
+  background-color: ${(props) =>
+    props.status === 0
+      ? "rgba(254, 78, 72, 0.1)"
+      : props.status === 1
+      ? "rgba(0, 120, 255, 0.1)"
+      : props.status === 2
+      ? "rgba(20, 185, 152, 0.1)"
+      : props.status === 3
+      ? "rgba(100, 100, 100, 0.1)"
+      : "transparent"};
+
   padding: ${(props) =>
     props.status === 0 ||
     props.status === 1 ||
     props.status === 2 ||
     props.status === 3
-      ? "0.125rem"
+      ? "0.125rem 0.5rem"
       : "auto"};
+`;
+
+const TableCellContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 33%;
+`;
+
+const TableRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 35px;
+  border-bottom: 0.0625rem solid #ededed;
+  cursor: pointer;
 `;
 
 const CustomModal = styled(Modal)`
@@ -263,7 +281,9 @@ const TodayOrderTable: React.FC = () => {
     if (status === null) {
       setFilteredOrders(orders);
     } else {
-      setFilteredOrders(orders.filter((order) => order.status === status));
+      const filtered = orders.filter((order) => order.status === status);
+      console.log("Filtered Orders:", filtered);
+      setFilteredOrders(filtered);
     }
   };
 
@@ -313,11 +333,17 @@ const TodayOrderTable: React.FC = () => {
         <TableBody>
           {filteredOrders.map((order) => (
             <TableRow key={order.id} onClick={() => handleRowClick(order)}>
-              <TableCell style={{ fontSize: "8px" }}>{order.id}</TableCell>
-              <TableCell>{maskNickname(order.nickname)}</TableCell>
-              <TableCell status={order.status}>
-                {formatStatus(order.status)}
-              </TableCell>
+              <TableCellContainer>
+                <TableCell style={{ fontSize: "8px" }}>{order.id}</TableCell>
+              </TableCellContainer>
+              <TableCellContainer>
+                <TableCell>{maskNickname(order.nickname)}</TableCell>
+              </TableCellContainer>
+              <TableCellContainer>
+                <TableCell status={order.status}>
+                  {formatStatus(order.status)}
+                </TableCell>
+              </TableCellContainer>
             </TableRow>
           ))}
         </TableBody>

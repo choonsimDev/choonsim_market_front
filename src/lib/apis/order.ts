@@ -22,7 +22,6 @@ export const getTodayOrders = async () => {
 export const getOrdersByStatus = async (status: number) => {
   return axiosClient.get(`${BASE_URL}/status/${status}`);
 };
-
 export const updateOrderStatus = async (
   id: string,
   updateData: UpdateOrderStatusDto
