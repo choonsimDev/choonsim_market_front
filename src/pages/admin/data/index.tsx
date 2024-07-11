@@ -25,15 +25,34 @@ const AdminData = () => {
         const { data } = await getAllOrders();
         console.log(data);
 
+        // 현재 KST 날짜 구하기
+        const today = new Date();
+        const kstOffset = 9 * 60; // KST는 UTC+9
+        today.setMinutes(
+          today.getMinutes() + today.getTimezoneOffset() + kstOffset
+        );
+
+        const todayDateString = today.toISOString().split("T")[0];
+
+        // 데이터 필터링: createdAt 날짜가 오늘 날짜(KST)와 동일한 항목만 포함
+        const filteredData = data.filter((item: DataItem) => {
+          const itemDate = new Date(item.createdAt);
+          itemDate.setMinutes(
+            itemDate.getMinutes() + itemDate.getTimezoneOffset() + kstOffset
+          );
+          const itemDateString = itemDate.toISOString().split("T")[0];
+          return itemDateString === todayDateString;
+        });
+
         // 데이터를 createdAt 기준으로 내림차순 정렬
-        data.sort(
+        filteredData.sort(
           (a: DataItem, b: DataItem) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
 
         // 이전 데이터와 현재 데이터를 비교하여 새로운 데이터가 있는지 확인
         if (prevOrderData.length > 0) {
-          const newItems = data.filter(
+          const newItems = filteredData.filter(
             (item: DataItem) =>
               item.status === 0 &&
               !prevOrderData.some((prevItem) => prevItem.id === item.id)
@@ -47,8 +66,8 @@ const AdminData = () => {
           }
         }
 
-        setPrevOrderData(data); // Update previous order data
-        setOrderData(data); // Update current order data
+        setPrevOrderData(filteredData); // Update previous order data
+        setOrderData(filteredData); // Update current order data
       } catch (error) {
         router.push("/admin");
       }

@@ -109,29 +109,12 @@ const copyAnimation = keyframes`
 const Table: React.FC<TableProps> = ({ title, data }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState("");
-  const [tableData, setTableData] = useState<DataItem[]>([]);
+  const [tableData, setTableData] = useState(data);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   useEffect(() => {
-    const today = new Date();
-    const startOfDay = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate()
-    );
-    const endOfDay = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate() + 1
-    );
-
-    const filteredData = data.filter((item) => {
-      const createdAtDate = new Date(item.createdAt);
-      return createdAtDate >= startOfDay && createdAtDate < endOfDay;
-    });
-
-    setTableData(filteredData);
+    setTableData(data);
   }, [data]);
 
   const handleAddressClick = (address: string) => {
