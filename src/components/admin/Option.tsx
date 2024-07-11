@@ -357,12 +357,16 @@ const OptionButton: React.FC<OptionButtonProps> = ({
       </Button>
       {showOptions && (
         <Dropdown>
-          <DropdownItem onClick={() => handleOptionClick("입금 확인중")}>
-            입금 확인중
-          </DropdownItem>
-          <DropdownItem onClick={() => handleOptionClick("진행중")}>
-            진행중
-          </DropdownItem>
+          {item.status !== 0 && (
+            <DropdownItem onClick={() => handleOptionClick("입금 확인중")}>
+              입금 확인중
+            </DropdownItem>
+          )}
+          {item.status !== 0 && (
+            <DropdownItem onClick={() => handleOptionClick("진행중")}>
+              진행중
+            </DropdownItem>
+          )}
           <DropdownItem onClick={() => handleOptionClick("매칭 완료")}>
             매칭 완료
           </DropdownItem>
