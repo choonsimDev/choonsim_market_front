@@ -28,6 +28,7 @@ const OrderBuyButton = styled.button`
   align-items: center;
   justify-content: center;
   gap: 10px;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.05);
 `;
 const OrderSellButton = styled.button`
   border: 0.0625rem solid #daecff;
@@ -42,6 +43,7 @@ const OrderSellButton = styled.button`
   align-items: center;
   justify-content: center;
   gap: 10px;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.05);
 `;
 
 export const MainComponent = () => {

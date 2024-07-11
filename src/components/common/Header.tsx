@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { useRouter } from "next/router";
 
 const HeaderBlock = styled.div`
+  border-bottom: solid 1px #f5f5f5;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.05);
   padding-inline: 1.5rem;
 `;
 
@@ -12,7 +14,7 @@ const HeaderContainer = styled.header`
   align-items: center;
   justify-content: flex-start;
   background-color: #fff;
-  border-bottom: solid 1px #f5f5f5;
+
   cursor: pointer;
   gap: 10px;
 `;

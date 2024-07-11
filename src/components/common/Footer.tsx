@@ -9,6 +9,8 @@ const FooterContainer = styled.footer`
   margin-top: 20px;
   padding: 10px 0;
   background-color: #fff;
+  border-top: solid 1px #f5f5f5;
+  box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.05);
 `;
 
 const FooterCell = styled.div`

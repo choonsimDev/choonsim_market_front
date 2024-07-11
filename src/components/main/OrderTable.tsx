@@ -4,6 +4,12 @@ import { getOrdersByStatus } from "@/lib/apis/order";
 import { Order, OrderType } from "@/lib/types/order";
 import { useRouter } from "next/router";
 
+interface TableProps {
+  $isBuy?: boolean;
+  $isSell?: boolean;
+  $isLast?: boolean;
+}
+
 const TableContainer = styled.div`
   width: 100%;
   margin: 10px 0;
@@ -15,6 +21,7 @@ const TableContainer = styled.div`
   background-color: #fbfbfb;
   display: flex;
   flex-direction: column;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.05);
 `;
 
 const TableBlock = styled.div`
@@ -27,16 +34,19 @@ const TableBlock = styled.div`
 const TableHead = styled.div`
   display: flex;
   justify-content: center;
-  color: #333;
+  color: #232323;
   font-weight: bold;
 `;
 
-const TableHeader = styled.div<{ $isBuy?: boolean; $isSell?: boolean }>`
+const TableHeader = styled.div<TableProps>`
   width: 100px;
   text-align: center;
   font-size: 1.125rem;
   padding: 10px 0;
-  color: ${(props) => (props.$isBuy ? "red" : props.$isSell ? "blue" : "#333")};
+  color: ${(props) =>
+    props.$isBuy ? "red" : props.$isSell ? "blue" : "#232323"};
+  border-right: ${(props) => (props.$isLast ? "none" : "solid 2px #ededed")};
+  border-bottom: solid 2px #ededed;
 `;
 
 const TableBody = styled.div`
@@ -49,11 +59,13 @@ const TableRow = styled.div`
   justify-content: center;
 `;
 
-const TableCell = styled.div<{ $isBuy?: boolean; $isSell?: boolean }>`
+const TableCell = styled.div<TableProps>`
   width: 100px;
   text-align: center;
   padding: 10px 0;
-  color: ${(props) => (props.$isBuy ? "red" : props.$isSell ? "blue" : "#333")};
+  color: ${(props) =>
+    props.$isBuy ? "red" : props.$isSell ? "blue" : "#232323"};
+  border-right: ${(props) => (props.$isLast ? "none" : "solid 2px #ededed")};
 `;
 
 const OrderTable: React.FC = () => {
@@ -92,7 +104,9 @@ const OrderTable: React.FC = () => {
         <TableHead>
           <TableHeader $isBuy>구매</TableHeader>
           <TableHeader>가격</TableHeader>
-          <TableHeader $isSell>판매</TableHeader>
+          <TableHeader $isSell={true} $isLast={true}>
+            Sell
+          </TableHeader>
         </TableHead>
         <TableBody>
           {orders.map((order) => (
@@ -112,6 +126,7 @@ const OrderTable: React.FC = () => {
               <TableCell>{order.price.toLocaleString()}</TableCell>
               <TableCell
                 $isSell={order.type === OrderType.SELL}
+                $isLast={true}
                 onClick={
                   order.type === OrderType.SELL
                     ? () => {
