@@ -33,17 +33,17 @@ const Dropdown = styled.div`
   z-index: 1;
 `;
 
-const DropdownItem = styled.div`
+const DropdownItem = styled.div<{ disabled?: boolean }>`
   width: 5rem;
   padding: 10px;
   font-family: Poppins;
   font-size: 12px;
   font-weight: 500;
   text-align: center;
-  color: #242731;
-  cursor: pointer;
+  color: ${({ disabled }) => (disabled ? "#bbbfc1" : "#242731")};
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
   &:hover {
-    background: #faff00;
+    background: ${({ disabled }) => (disabled ? "inherit" : "#faff00")};
   }
 `;
 
@@ -357,22 +357,33 @@ const OptionButton: React.FC<OptionButtonProps> = ({
       </Button>
       {showOptions && (
         <Dropdown>
-          {item.status !== 0 && (
-            <DropdownItem onClick={() => handleOptionClick("입금 확인중")}>
-              입금 확인중
-            </DropdownItem>
+          {item.status === 0 ? (
+            <>
+              <DropdownItem disabled>입금 확인중</DropdownItem>
+              <DropdownItem onClick={() => handleOptionClick("진행중")}>
+                진행중
+              </DropdownItem>
+              <DropdownItem disabled>매칭 완료</DropdownItem>
+              <DropdownItem onClick={() => handleOptionClick("반환/취소")}>
+                반환/취소
+              </DropdownItem>
+            </>
+          ) : (
+            <>
+              <DropdownItem onClick={() => handleOptionClick("입금 확인중")}>
+                입금 확인중
+              </DropdownItem>
+              <DropdownItem onClick={() => handleOptionClick("진행중")}>
+                진행중
+              </DropdownItem>
+              <DropdownItem onClick={() => handleOptionClick("매칭 완료")}>
+                매칭 완료
+              </DropdownItem>
+              <DropdownItem onClick={() => handleOptionClick("반환/취소")}>
+                반환/취소
+              </DropdownItem>
+            </>
           )}
-          {item.status !== 0 && (
-            <DropdownItem onClick={() => handleOptionClick("진행중")}>
-              진행중
-            </DropdownItem>
-          )}
-          <DropdownItem onClick={() => handleOptionClick("매칭 완료")}>
-            매칭 완료
-          </DropdownItem>
-          <DropdownItem onClick={() => handleOptionClick("반환/취소")}>
-            반환/취소
-          </DropdownItem>
         </Dropdown>
       )}
       {showPopup1 && popupData && (
