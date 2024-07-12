@@ -75,15 +75,7 @@ const OrderTable: React.FC = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       const { data } = await getOrdersByStatus(1);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const todayData = data.filter((order: Order) => {
-        const createdAtDate = new Date(order.createdAt);
-        return createdAtDate >= today;
-      });
-
-      const sortedData = todayData.sort((a: any, b: any) => b.price - a.price);
+      const sortedData = data.sort((a: any, b: any) => b.price - a.price);
 
       const aggregatedData = sortedData.reduce((acc: any, order: any) => {
         const existing = acc.find(
@@ -97,7 +89,24 @@ const OrderTable: React.FC = () => {
         return acc;
       }, []);
 
-      setOrders(aggregatedData);
+      // Filter the orders to only include those with today's date (KST)
+      const today = new Date();
+      const kstOffset = 9 * 60; // KST is UTC+9
+      today.setMinutes(
+        today.getMinutes() + today.getTimezoneOffset() + kstOffset
+      );
+
+      const todayDateString = today.toISOString().split("T")[0];
+      const filteredData = aggregatedData.filter((order: Order) => {
+        const orderDate = new Date(order.createdAt);
+        orderDate.setMinutes(
+          orderDate.getMinutes() + orderDate.getTimezoneOffset() + kstOffset
+        );
+        const orderDateString = orderDate.toISOString().split("T")[0];
+        return orderDateString === todayDateString;
+      });
+
+      setOrders(filteredData);
     };
 
     fetchOrders();
