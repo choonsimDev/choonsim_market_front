@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import { getOrdersByStatus } from "@/lib/apis/order";
 import { Order, OrderType } from "@/lib/types/order";
@@ -52,6 +52,8 @@ const TableHeader = styled.div<TableProps>`
 const TableBody = styled.div`
   height: 45vh;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 `;
 
 const TableRow = styled.div`
@@ -71,6 +73,10 @@ const TableCell = styled.div<TableProps>`
 const OrderTable: React.FC = () => {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [previousRemainingAmounts, setPreviousRemainingAmounts] = useState<{
+    [key: string]: number;
+  }>({});
+  const tableBodyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -115,6 +121,37 @@ const OrderTable: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    orders.forEach((order) => {
+      if (order.remainingAmount !== previousRemainingAmounts[order.id]) {
+        scrollToPrice(order.price);
+      }
+    });
+    setPreviousRemainingAmounts(
+      orders.reduce((acc, order) => {
+        acc[order.id] = order.remainingAmount;
+        return acc;
+      }, {} as { [key: string]: number })
+    );
+  }, [orders]);
+
+  const scrollToPrice = (price: number) => {
+    if (tableBodyRef.current) {
+      const rows = tableBodyRef.current.children;
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const cell = row.children[1] as HTMLDivElement; // Assume price is in the second cell
+        if (cell && parseFloat(cell.innerText.replace(/,/g, "")) === price) {
+          tableBodyRef.current.scrollTop =
+            row.clientHeight * i -
+            tableBodyRef.current.clientHeight / 2 +
+            row.clientHeight / 2;
+          break;
+        }
+      }
+    }
+  };
+
   return (
     <TableContainer>
       <TableBlock>
@@ -125,7 +162,7 @@ const OrderTable: React.FC = () => {
             판매
           </TableHeader>
         </TableHead>
-        <TableBody>
+        <TableBody ref={tableBodyRef}>
           {orders.map((order) => (
             <TableRow key={order.id}>
               <TableCell
