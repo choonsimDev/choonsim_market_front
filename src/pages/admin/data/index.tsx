@@ -80,6 +80,64 @@ const AdminData = () => {
     return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 인터벌 클리어
   }, [router, prevOrderData]);
 
+  // '입금 확인 필요' 데이터만 주기적으로 갱신
+  useEffect(() => {
+    const fetchPendingOrders = async () => {
+      try {
+        await validateToken();
+        const { data } = await getAllOrders();
+
+        // 현재 KST 날짜 구하기
+        const today = new Date();
+        const kstOffset = 9 * 60; // KST는 UTC+9
+        today.setMinutes(
+          today.getMinutes() + today.getTimezoneOffset() + kstOffset
+        );
+
+        const todayDateString = today.toISOString().split("T")[0];
+
+        // 데이터 필터링: createdAt 날짜가 오늘 날짜(KST)와 동일한 항목만 포함
+        const filteredData = data.filter((item: DataItem) => {
+          const itemDate = new Date(item.createdAt);
+          itemDate.setMinutes(
+            itemDate.getMinutes() + itemDate.getTimezoneOffset() + kstOffset
+          );
+          const itemDateString = itemDate.toISOString().split("T")[0];
+          return itemDateString === todayDateString;
+        });
+
+        // '입금 확인 필요' 상태 필터링
+        const pendingOrders = filteredData.filter(
+          (item: DataItem) => item.status === 0
+        );
+
+        setOrderData((prevData) => {
+          const newData = [...prevData];
+          pendingOrders.forEach((pendingOrder: DataItem) => {
+            const index = newData.findIndex(
+              (order) => order.id === pendingOrder.id
+            );
+            if (index !== -1) {
+              // 'status'가 2가 아닌 경우에만 업데이트
+              if (newData[index].status !== 2) {
+                newData[index] = pendingOrder;
+              }
+            } else {
+              newData.push(pendingOrder);
+            }
+          });
+          return newData;
+        });
+      } catch (error) {
+        router.push("/admin");
+      }
+    };
+
+    const intervalId = setInterval(fetchPendingOrders, 5000); // 5초마다 fetchPendingOrders 호출
+
+    return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 인터벌 클리어
+  }, [router]);
+
   return (
     <Container>
       <audio ref={audioRef} src="/sound/sound1.mp3" preload="auto" />

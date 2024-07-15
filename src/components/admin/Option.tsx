@@ -282,7 +282,6 @@ const OptionButton: React.FC<OptionButtonProps> = ({
         await updateOrderStatus(item.id, { status: 0 });
         console.log("Status updated to 0");
         onChange(option, 0); // 상태 업데이트 후 상태 갱신
-        window.location.reload();
       } catch (error) {
         console.error("Failed to update order status:", error);
       }
@@ -291,7 +290,6 @@ const OptionButton: React.FC<OptionButtonProps> = ({
         await updateOrderStatus(item.id, { status: 2 });
         console.log("Status updated to 2");
         onChange(option, 2);
-        window.location.reload();
       } catch (error) {
         console.error("Failed to update order status:", error);
       }
@@ -310,7 +308,6 @@ const OptionButton: React.FC<OptionButtonProps> = ({
     try {
       await updateOrderStatus(item.id, { status: 1 });
       await matchOrders();
-      window.location.reload();
     } catch (error) {
       console.error("Failed to update order status:", error);
     }
@@ -326,7 +323,6 @@ const OptionButton: React.FC<OptionButtonProps> = ({
       }
       setShowPopup1(false);
       setShowPopup2(false);
-      window.location.reload();
     } catch (error) {
       console.error("Failed to update order status:", error);
     }
@@ -337,7 +333,6 @@ const OptionButton: React.FC<OptionButtonProps> = ({
       await updateOrderStatus(item.id, { status: 3, cancellationReason });
       onChange("반환/취소", 3);
       setShowPopup3(false);
-      window.location.reload();
     } catch (error) {
       console.error("Failed to update order status:", error);
     }
