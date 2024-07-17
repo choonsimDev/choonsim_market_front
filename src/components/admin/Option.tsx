@@ -268,6 +268,7 @@ const OptionButton: React.FC<OptionButtonProps> = ({
   const [showPopup3, setShowPopup3] = useState(false);
   const [popupData, setPopupData] = useState<DataItem | null>(null);
   const [cancellationReason, setCancellationReason] = useState("");
+  const [matchAmount, setMatchAmount] = useState(0);
 
   const handleOptionClick = async (option: string) => {
     setShowOptions(false);
@@ -318,10 +319,8 @@ const OptionButton: React.FC<OptionButtonProps> = ({
 
     try {
       // 구매자와 판매자의 remainingAmount 중 작은 값을 matchAmount로 설정합니다.
-      const matchAmount = Math.min(
-        item.remainingAmount,
-        popupData.remainingAmount
-      );
+      const matchA = Math.min(item.remainingAmount, popupData.remainingAmount);
+      setMatchAmount(matchA);
 
       // 구매자의 remainingAmount를 차감한 값을 updatedItemRemainingAmount로 설정합니다.
       const updatedItemRemainingAmount = item.remainingAmount - matchAmount;
