@@ -1,6 +1,6 @@
 export enum OrderType {
-  BUY = 'BUY',
-  SELL = 'SELL'
+  BUY = "BUY",
+  SELL = "SELL",
 }
 
 export interface Order {
@@ -34,6 +34,7 @@ export interface CreateOrderDto {
 export interface UpdateOrderStatusDto {
   status?: number;
   cancellationReason?: string; // only for status 3
+  remainingAmount?: number; // only for status 1
 }
 
 export interface MatchOrderDto {

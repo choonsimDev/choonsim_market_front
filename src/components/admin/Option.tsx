@@ -287,9 +287,9 @@ const OptionButton: React.FC<OptionButtonProps> = ({
       }
     } else if (option == "매칭 완료") {
       try {
-        await updateOrderStatus(item.id, { status: 2 });
-        console.log("Status updated to 2");
-        onChange(option, 2);
+        await updateOrderStatus(item.id, { status: 3 });
+        console.log("Status updated to 3");
+        onChange(option, 3);
       } catch (error) {
         console.error("Failed to update order status:", error);
       }
@@ -314,31 +314,72 @@ const OptionButton: React.FC<OptionButtonProps> = ({
   };
 
   const handleConfirmProcessing = async () => {
+    if (!popupData) return; // popupData가 null인 경우 함수를 종료합니다.
+
     try {
-      await processOrder(item.id, true);
-      onChange("매칭 대기중", 1, true);
-      if (item.remainingAmount === 0) {
-        await updateOrderStatus(item.id, { status: 2 });
-        onChange("매칭 완료", 2);
-      }
-      setShowPopup1(false);
-      setShowPopup2(false);
+      // 구매자와 판매자의 remainingAmount 중 작은 값을 matchAmount로 설정합니다.
+      const matchAmount = Math.min(
+        item.remainingAmount,
+        popupData.remainingAmount
+      );
+
+      // 구매자의 remainingAmount를 차감한 값을 updatedItemRemainingAmount로 설정합니다.
+      const updatedItemRemainingAmount = item.remainingAmount - matchAmount;
+      console.log(
+        `Updating item ${item.id} with remainingAmount: ${updatedItemRemainingAmount}`
+      );
+
+      // 구매자의 상태와 remainingAmount를 업데이트합니다.
+      await updateOrderStatus(item.id, {
+        status: updatedItemRemainingAmount === 0 ? 3 : 1, // remainingAmount가 0이면 상태를 3으로, 그렇지 않으면 1로 설정합니다.
+        remainingAmount: updatedItemRemainingAmount, // 차감된 remainingAmount를 설정합니다.
+      });
+
+      // 판매자의 remainingAmount를 차감한 값을 updatedPopupRemainingAmount로 설정합니다.
+      const updatedPopupRemainingAmount =
+        popupData.remainingAmount - matchAmount;
+      console.log(
+        `Updating popupData ${popupData.id} with remainingAmount: ${updatedPopupRemainingAmount}`
+      );
+
+      // 판매자의 상태와 remainingAmount를 업데이트합니다.
+      await updateOrderStatus(popupData.id, {
+        status: updatedPopupRemainingAmount === 0 ? 3 : 1, // remainingAmount가 0이면 상태를 3으로, 그렇지 않으면 1로 설정합니다.
+        remainingAmount: updatedPopupRemainingAmount, // 차감된 remainingAmount를 설정합니다.
+      });
+
+      onChange("입금 완료", 3); // 상태 변경을 호출합니다.
+      setShowPopup2(false); // 팝업을 닫습니다.
     } catch (error) {
-      console.error("Failed to update order status:", error);
+      console.error("Failed to update order status:", error); // 에러가 발생하면 콘솔에 에러 메시지를 출력합니다.
+    }
+  };
+
+  const handleCompletePayment = async () => {
+    try {
+      if (item.remainingAmount === 0) {
+        await updateOrderStatus(item.id, { status: 3 });
+        onChange("입금 완료", 3);
+      } else {
+        await updateOrderStatus(item.id, { status: 1 });
+        onChange("진행중", 1);
+      }
+    } catch (error) {
+      console.error("Failed to complete payment:", error);
     }
   };
 
   const handleConfirmCancellation = async () => {
     try {
-      await updateOrderStatus(item.id, { status: 3, cancellationReason });
-      onChange("반환/취소", 3);
+      await updateOrderStatus(item.id, { status: 4, cancellationReason });
+      onChange("반환/취소", 4);
       setShowPopup3(false);
     } catch (error) {
       console.error("Failed to update order status:", error);
     }
   };
 
-  const isProcessing = item.status === 1 && !item.processed;
+  const isProcessing = item.status === 2 && !item.processed;
 
   return (
     <OptionButtonContainer>
@@ -358,7 +399,7 @@ const OptionButton: React.FC<OptionButtonProps> = ({
               <DropdownItem onClick={() => handleOptionClick("진행중")}>
                 진행중
               </DropdownItem>
-              <DropdownItem disabled>매칭 완료</DropdownItem>
+              <DropdownItem disabled>처리 대기</DropdownItem>
               <DropdownItem onClick={() => handleOptionClick("반환/취소")}>
                 반환/취소
               </DropdownItem>
@@ -371,8 +412,8 @@ const OptionButton: React.FC<OptionButtonProps> = ({
               <DropdownItem onClick={() => handleOptionClick("진행중")}>
                 진행중
               </DropdownItem>
-              <DropdownItem onClick={() => handleOptionClick("매칭 완료")}>
-                매칭 완료
+              <DropdownItem onClick={() => handleOptionClick("처리 대기")}>
+                처리 대기
               </DropdownItem>
               <DropdownItem onClick={() => handleOptionClick("반환/취소")}>
                 반환/취소
@@ -513,7 +554,7 @@ const OptionButton: React.FC<OptionButtonProps> = ({
                   </SubText>
                 </BankInfo>
                 <ButtonContainer>
-                  <CloseButton onClick={handleConfirmProcessing}>
+                  <CloseButton onClick={handleCompletePayment}>
                     입금 완료
                   </CloseButton>
                 </ButtonContainer>

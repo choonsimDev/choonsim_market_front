@@ -249,14 +249,18 @@ const TodayOrderTable: React.FC = () => {
     const fetchOrders = async () => {
       const { data } = await getTodayOrders();
       setOrders(data);
-      setFilteredOrders(data);
+      setFilteredOrders(
+        activeFilter !== null
+          ? data.filter((order: Order) => order.status === activeFilter)
+          : data
+      );
     };
 
     fetchOrders();
     const interval = setInterval(fetchOrders, 5000);
 
     return () => clearInterval(interval); // Clean up interval on component unmount
-  }, []);
+  }, [activeFilter]);
 
   const handleRowClick = (order: Order) => {
     setSelectedOrder(order);
@@ -281,8 +285,7 @@ const TodayOrderTable: React.FC = () => {
     if (status === null) {
       setFilteredOrders(orders);
     } else {
-      const filtered = orders.filter((order) => order.status === status);
-      console.log("Filtered Orders:", filtered);
+      const filtered = orders.filter((order: Order) => order.status === status);
       setFilteredOrders(filtered);
     }
   };

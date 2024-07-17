@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
-import styled, { keyframes, css } from "styled-components";
-import OptionButton, { DataItem } from "./Option";
-import Modal from "./Modal";
+import React, { useEffect, useState } from "react"; // React 훅을 가져옴
+import styled, { keyframes, css } from "styled-components"; // 스타일드 컴포넌트를 가져옴
+import OptionButton, { DataItem } from "./Option"; // OptionButton 컴포넌트와 DataItem 타입을 가져옴
+import Modal from "./Modal"; // Modal 컴포넌트를 가져옴
+import { updateOrderStatus } from "@/lib/apis/order"; // 주문 상태 업데이트 함수를 가져옴
 
 const TableContainer = styled.div`
   flex-shrink: 0;
@@ -87,18 +88,16 @@ const DataColumn = styled.div<{ isCopied?: boolean }>`
       : "none"};
 `;
 
-// 남은 수량 컬럼 스타일 정의 (기본 데이터 컬럼 스타일을 상속받음)
 const RemainingAmountColumn = styled(DataColumn)`
   color: #00c880;
 `;
 
-// 테이블 컴포넌트의 속성 타입 정의
 interface TableProps {
   title: string;
   data: DataItem[];
 }
 
-// 복사 애니메이션 정의
+// Copy animation
 const copyAnimation = keyframes`
   0% {
     background-color: yellow;
@@ -108,83 +107,60 @@ const copyAnimation = keyframes`
   }
 `;
 
-// 테이블 컴포넌트 정의
 const Table: React.FC<TableProps> = ({ title, data }) => {
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState("");
-  const [tableData, setTableData] = useState(data);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const [copiedField, setCopiedField] = useState<string | null>(null);
-  const [processedOrders, setProcessedOrders] = useState<string[]>([]);
+  // Table 컴포넌트 정의
+  const [isModalOpen, setModalOpen] = useState(false); // 모달의 상태를 저장할 상태 정의
+  const [selectedAddress, setSelectedAddress] = useState(""); // 선택된 주소를 저장할 상태 정의
+  const [tableData, setTableData] = useState(data); // 테이블 데이터를 저장할 상태 정의
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null); // 복사된 인덱스를 저장할 상태 정의
+  const [copiedField, setCopiedField] = useState<string | null>(null); // 복사된 필드를 저장할 상태 정의
+  const [processedOrders, setProcessedOrders] = useState<string[]>([]); // 처리된 주문을 저장할 상태 정의
 
-  // 데이터가 변경될 때마다 테이블 데이터를 업데이트
   useEffect(() => {
-    setTableData(data);
-  }, [data]);
-
-  // 주소 클릭 시 모달 열기
-  const handleAddressClick = (address: string) => {
-    setSelectedAddress(address);
-    setModalOpen(true);
-  };
+    setTableData(data); // 테이블 데이터를 업데이트
+  }, [data]); // 데이터가 변경될 때마다 실행
 
   const closeModal = () => {
-    setModalOpen(false);
-    setSelectedAddress("");
+    // 모달 닫기 핸들러
+    setModalOpen(false); // 모달을 닫음
+    setSelectedAddress(""); // 선택된 주소를 초기화
   };
 
-  //데이터 항목 상태 업데이트
   const updateDataItemStatus = (
+    // 데이터 항목의 상태를 업데이트하는 함수 정의
     id: string,
     status: number,
     processed?: boolean
   ) => {
     setTableData((prevData) =>
       prevData.map((item) =>
-        item.id === id && item.status !== 1 // status가 1번이 아니면 업데이트
+        item.id === id
           ? { ...item, status, processed: processed ?? item.processed }
           : item
       )
     );
   };
 
-  // 매칭 버튼 클릭 시 처리
-  const handleMatchClick = (buyOrder: DataItem, sellOrder: DataItem) => {
-    const buyRemaining = buyOrder.remainingAmount;
-    const sellRemaining = sellOrder.remainingAmount;
+  const handleMatchClick = async (buyOrder: DataItem, sellOrder: DataItem) => {
+    // 매칭 클릭 핸들러
+    await updateOrderStatus(buyOrder.id, { status: 2 }); // 구매 건 상태를 '처리 대기'로 변경
+    await updateOrderStatus(sellOrder.id, { status: 2 }); // 판매 건 상태를 '처리 대기'로 변경
 
-    if (buyRemaining > sellRemaining) {
-      updateDataItemStatus(buyOrder.id, buyOrder.status, true);
-      buyOrder.remainingAmount -= sellRemaining;
-      sellOrder.remainingAmount = 0;
-      updateDataItemStatus(sellOrder.id, 2);
-    } else if (buyRemaining < sellRemaining) {
-      updateDataItemStatus(sellOrder.id, sellOrder.status, true);
-      sellOrder.remainingAmount -= buyRemaining;
-      buyOrder.remainingAmount = 0;
-      updateDataItemStatus(buyOrder.id, 2);
-    } else {
-      buyOrder.remainingAmount = 0;
-      sellOrder.remainingAmount = 0;
-      updateDataItemStatus(buyOrder.id, 2);
-      updateDataItemStatus(sellOrder.id, 2);
-    }
-    setProcessedOrders((prev) => [...prev, buyOrder.id, sellOrder.id]);
+    updateDataItemStatus(buyOrder.id, 2); // 데이터 항목 상태를 '처리 대기'로 업데이트
+    updateDataItemStatus(sellOrder.id, 2); // 데이터 항목 상태를 '처리 대기'로 업데이트
+
+    setProcessedOrders((prev) => [...prev, buyOrder.id, sellOrder.id]); // 처리된 주문을 기록
   };
 
-  // 남은 수량이 포함된 컬럼이 있는지 확인
-  const includeRemainingAmount = tableData.some(
-    (item) => item.status === 1 || item.status === 2
-  );
-
   const columnWidths = [
+    // 각 열의 너비 설정
     "100px", // Option button
     "100px", // createdAt
     "200px", // ID
     "50px", // type
     "80px", // price
     "50px", // amount
-    ...(includeRemainingAmount ? ["3rem"] : []), // remainingAmount
+    "3rem", // remainingAmount
     "100px", // nickname
     "100px", // phoneNumber
     "300px", // blockchainAddress
@@ -194,13 +170,14 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
   ];
 
   const headers = [
+    // 각 열의 헤더 설정
     "",
-    "신청 날짜", // Header for createdAt column
+    "신청 날짜",
     "신청번호",
     "구분",
     "가격",
     "신청수량",
-    ...(includeRemainingAmount ? ["남은 수량"] : []),
+    "남은 수량",
     "닉네임",
     "연락처",
     "신청 주소",
@@ -209,39 +186,47 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
     "입금계좌",
   ];
 
-  const totalWidth = includeRemainingAmount ? "1646px" : "1598px";
+  const totalWidth = "1646px"; // 테이블 전체 너비 설정
 
   const copyToClipboard = (text: string, index: number, field: string) => {
+    // 클립보드 복사 함수 정의
     navigator.clipboard.writeText(text).then(() => {
-      setCopiedIndex(index);
-      setCopiedField(field);
+      // 텍스트를 클립보드에 복사
+      setCopiedIndex(index); // 복사된 인덱스를 상태에 저장
+      setCopiedField(field); // 복사된 필드를 상태에 저장
       setTimeout(() => {
+        // 1초 후에 상태 초기화
         setCopiedIndex(null);
         setCopiedField(null);
       }, 1000);
     });
   };
 
-  // 날짜 형식을 변환하는 함수 . T 제거
   const formatDate = (dateString: string) => {
+    // 날짜 포맷 함수 정의
     const date = new Date(dateString);
     const formattedDate = date.toISOString().split(".")[0].replace("T", " ");
     return formattedDate;
   };
 
-  // 가격을 기준으로 데이터를 그룹화
   const groupedByPrice = tableData.reduce((acc: any, item: DataItem) => {
+    // 가격별로 그룹화
     if (!acc[item.price]) acc[item.price] = [];
     acc[item.price].push(item);
     return acc;
   }, {});
 
-  // 데이터 행을 렌더링하는 함수
   const renderRows = () => {
+    // 행 렌더링 함수 정의
     return Object.keys(groupedByPrice).map((price) => {
+      // 각 가격대별로 반복
       const items = groupedByPrice[price];
-      const buyOrder = items.find((item: DataItem) => item.type === "BUY");
-      const sellOrder = items.find((item: DataItem) => item.type === "SELL");
+      const buyOrder = items.find(
+        (item: DataItem) => item.type === "BUY" && item.status === 2
+      );
+      const sellOrder = items.find(
+        (item: DataItem) => item.type === "SELL" && item.status === 2
+      );
 
       return (
         <React.Fragment key={price}>
@@ -253,12 +238,12 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
                     item.status === 0
                       ? "입금 확인중"
                       : item.status === 1
-                      ? item.processed
-                        ? "매칭 대기중"
-                        : "처리 대기"
+                      ? "매칭 대기중"
                       : item.status === 2
-                      ? "매칭 완료"
+                      ? "처리 대기"
                       : item.status === 3
+                      ? "입금 완료"
+                      : item.status === 4
                       ? "반환/취소"
                       : ""
                   }
@@ -270,7 +255,6 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
                     );
                   }}
                   item={item}
-                  highlight={item.status === 1 && !item.processed}
                 />
               </DataColumn>
 
@@ -326,25 +310,24 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
               >
                 {item.amount}
               </DataColumn>
-              {includeRemainingAmount && (
-                <RemainingAmountColumn
-                  style={{ width: columnWidths[6] }}
-                  onClick={() =>
-                    copyToClipboard(
-                      item.remainingAmount.toString(),
-                      index,
-                      "remainingAmount"
-                    )
-                  }
-                  isCopied={
-                    copiedIndex === index && copiedField === "remainingAmount"
-                  }
-                >
-                  {item.remainingAmount}
-                </RemainingAmountColumn>
-              )}
               <DataColumn
-                style={{ width: columnWidths[includeRemainingAmount ? 7 : 6] }}
+                style={{ width: columnWidths[6] }}
+                onClick={() =>
+                  copyToClipboard(
+                    item.remainingAmount.toString(),
+                    index,
+                    "remainingAmount"
+                  )
+                }
+                isCopied={
+                  copiedIndex === index && copiedField === "remainingAmount"
+                }
+              >
+                {item.remainingAmount}
+              </DataColumn>
+
+              <DataColumn
+                style={{ width: columnWidths[7] }}
                 onClick={() =>
                   copyToClipboard(item.nickname, index, "nickname")
                 }
@@ -353,7 +336,7 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
                 {item.nickname}
               </DataColumn>
               <DataColumn
-                style={{ width: columnWidths[includeRemainingAmount ? 8 : 7] }}
+                style={{ width: columnWidths[8] }}
                 onClick={() =>
                   copyToClipboard(item.phoneNumber, index, "phoneNumber")
                 }
@@ -364,7 +347,7 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
                 {item.phoneNumber}
               </DataColumn>
               <DataColumn
-                style={{ width: columnWidths[includeRemainingAmount ? 9 : 8] }}
+                style={{ width: columnWidths[9] }}
                 title={
                   item.blockchainAddress.length > 34
                     ? item.blockchainAddress
@@ -386,7 +369,7 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
                   : item.blockchainAddress}
               </DataColumn>
               <DataColumn
-                style={{ width: columnWidths[includeRemainingAmount ? 10 : 9] }}
+                style={{ width: columnWidths[10] }}
                 onClick={() =>
                   copyToClipboard(item.bankName, index, "bankName")
                 }
@@ -396,7 +379,7 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
               </DataColumn>
               <DataColumn
                 style={{
-                  width: columnWidths[includeRemainingAmount ? 11 : 10],
+                  width: columnWidths[11],
                 }}
                 onClick={() =>
                   copyToClipboard(item.username, index, "username")
@@ -407,7 +390,7 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
               </DataColumn>
               <DataColumn
                 style={{
-                  width: columnWidths[includeRemainingAmount ? 12 : 11],
+                  width: columnWidths[12],
                 }}
                 onClick={() =>
                   copyToClipboard(item.accountNumber, index, "accountNumber")
@@ -459,4 +442,4 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
   );
 };
 
-export default Table;
+export default Table; // Table 컴포넌트를 기본으로 내보냄

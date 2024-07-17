@@ -14,7 +14,7 @@ const Title = styled.h2`
 `;
 
 const Description = styled.div`
-  color: #FF0000;
+  color: #ff0000;
   font-size: 25px;
 `;
 
@@ -73,139 +73,163 @@ const ButtonContainer = styled.div`
 `;
 
 const RedText = styled.span`
-  color: #FF0000;
+  color: #ff0000;
 `;
 
 interface BuySecondStepComponentProps {
-    data: any;
-    setData: (data: any) => void;
-    setStep: (step: number) => void;
-    setOrderData: (order: any) => void;
+  data: any;
+  setData: (data: any) => void;
+  setStep: (step: number) => void;
+  setOrderData: (order: any) => void;
 }
 
 export const BuySecondStepComponent: React.FC<BuySecondStepComponentProps> = ({
-    data,
-    setData,
-    setStep,
-    setOrderData
+  data,
+  setData,
+  setStep,
+  setOrderData,
 }) => {
-    const [blockchainAddress, setBlockchainAddress] = useState<string>("");
-    const [bankName, setBankName] = useState<string>("");
-    const [accountNumber, setAccountNumber] = useState<string>("");
-    const [username, setUsername] = useState<string>("");
-    const [errors, setErrors] = useState<any>({});
+  const [blockchainAddress, setBlockchainAddress] = useState<string>("");
+  const [bankName, setBankName] = useState<string>("");
+  const [accountNumber, setAccountNumber] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [errors, setErrors] = useState<any>({});
 
-    const validateInput = () => {
-        let tempErrors = {};
-        let isValid = true;
+  const validateInput = () => {
+    let tempErrors = {};
+    let isValid = true;
 
-        if (blockchainAddress === "") {
-            tempErrors = { ...tempErrors, blockchainAddress: "지갑 주소를 작성해주세요." };
-            isValid = false;
-        }
-        if (bankName === "") {
-            tempErrors = { ...tempErrors, bankName: "은행명을 작성해주세요." };
-            isValid = false;
-        }
-        if (accountNumber === "") {
-            tempErrors = { ...tempErrors, accountNumber: "계좌 번호를 작성해주세요." };
-            isValid = false;
-        }
-        if (username === "") {
-            tempErrors = { ...tempErrors, username: "입금자명을 입력해주세요." };
-            isValid = false;
-        }
-        setErrors(tempErrors);
-        return isValid;
-    };
+    if (blockchainAddress === "") {
+      tempErrors = {
+        ...tempErrors,
+        blockchainAddress: "지갑 주소를 작성해주세요.",
+      };
+      isValid = false;
+    }
+    if (bankName === "") {
+      tempErrors = { ...tempErrors, bankName: "은행명을 작성해주세요." };
+      isValid = false;
+    }
+    if (accountNumber === "") {
+      tempErrors = {
+        ...tempErrors,
+        accountNumber: "계좌 번호를 작성해주세요.",
+      };
+      isValid = false;
+    }
+    if (username === "") {
+      tempErrors = { ...tempErrors, username: "입금자명을 입력해주세요." };
+      isValid = false;
+    }
+    setErrors(tempErrors);
+    return isValid;
+  };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
 
-        switch (name) {
-            case "blockchainAddress":
-                setBlockchainAddress(value);
-                break;
-            case "bankName":
-                setBankName(value);
-                break;
-            case "accountNumber":
-                setAccountNumber(value);
-                break;
-            case "username":
-                setUsername(value);
-                break;
-        }
-    };
+    switch (name) {
+      case "blockchainAddress":
+        setBlockchainAddress(value);
+        break;
+      case "bankName":
+        setBankName(value);
+        break;
+      case "accountNumber":
+        setAccountNumber(value);
+        break;
+      case "username":
+        setUsername(value);
+        break;
+    }
+  };
 
-    const onClickSubmit = async () => {
-        if (validateInput()) {
-            setData({
-                ...data,
-                blockchainAddress,
-                bankName,
-                accountNumber,
-                username
-            });
-            const orderResponse = await createOrder({
-                ...data,
-                blockchainAddress,
-                bankName,
-                accountNumber,
-                username
-            });
-            setOrderData(orderResponse.data);
-            setStep(3);
-        }
-    };
+  const onClickSubmit = async () => {
+    if (validateInput()) {
+      setData({
+        ...data,
+        blockchainAddress,
+        bankName,
+        accountNumber,
+        username,
+      });
+      const orderResponse = await createOrder({
+        ...data,
+        blockchainAddress,
+        bankName,
+        accountNumber,
+        username,
+      });
+      setOrderData(orderResponse.data);
+      setStep(3);
+    }
+  };
 
-    return (
-        <Container>
-            <img src="/svg/second-progress-bar.svg" alt="progress-bar" />
-            <Title>입금액은 <RedText>{data.price}원</RedText> 입니다.</Title>
-            <Description>{data.price}원, {data.amount} 신청</Description>
-            <Divider />
-            <SectionTitle>입금 정보를 입력해주세요.</SectionTitle>
-            <Form>
-                <Label><RedText>{data.nickname}</RedText> 님의 주소  (매칭 완료시 아래 주소로 전송됩니다.)</Label>
-                <Input
-                    name="blockchainAddress"
-                    value={blockchainAddress}
-                    onChange={handleChange}
-                    placeholder="주소를 복사해 넣어주세요."
-                />
-                {errors.blockchainAddress && <ErrorMessage>{errors.blockchainAddress}</ErrorMessage>}
-            </Form>
-            <SectionTitle>심부름 완료시 입금받을 계좌를 적어주세요.</SectionTitle>
-            <Form>
-                <Label>은행명</Label>
-                <Input
-                    name="bankName"
-                    value={bankName}
-                    onChange={handleChange}
-                    placeholder="은행명을 입력해주세요."
-                />
-                {errors.bankName && <ErrorMessage>{errors.bankName}</ErrorMessage>}
-                <Label>계좌번호를 입력해주세요</Label>
-                <Input
-                    name="accountNumber"
-                    value={accountNumber}
-                    onChange={handleChange}
-                    placeholder="계좌번호를 입력해주세요"
-                />
-                {errors.accountNumber && <ErrorMessage>{errors.accountNumber}</ErrorMessage>}
-                <Label>입금자명</Label>
-                <Input
-                    name="username"
-                    value={username}
-                    onChange={handleChange}
-                    placeholder="입금자명을 입력해주세요."
-                />
-                {errors.username && <ErrorMessage>{errors.username}</ErrorMessage>}
-            </Form>
-            <ButtonContainer>
-                <SecondaryButton text="접수하기" onClick={onClickSubmit} />
-            </ButtonContainer>
-        </Container>
-    );
+  const formatNumber = (number: number) => {
+    return number.toLocaleString();
+  };
+
+  return (
+    <Container>
+      <img src="/svg/second-progress-bar.svg" alt="progress-bar" />
+      <Title>
+        입금 금액은
+        <RedText> {formatNumber(data.price * data.amount)}원</RedText> 입니다.
+      </Title>
+      <Description>
+        {data.price}원, {data.amount}개 신청
+      </Description>
+      <Divider />
+      <SectionTitle>입금 정보를 입력해주세요.</SectionTitle>
+      <Form>
+        <Label>
+          <RedText>{data.nickname}</RedText> 님의 주소 (매칭 완료시 아래 주소로
+          전송됩니다.)
+        </Label>
+        <Input
+          name="blockchainAddress"
+          value={blockchainAddress}
+          onChange={handleChange}
+          placeholder="주소를 복사해 넣어주세요."
+        />
+        {errors.blockchainAddress && (
+          <ErrorMessage>{errors.blockchainAddress}</ErrorMessage>
+        )}
+      </Form>
+      <SectionTitle>심부름 완료시 입금받을 계좌를 적어주세요.</SectionTitle>
+      <Form>
+        <Label>은행명</Label>
+        <Input
+          name="bankName"
+          value={bankName}
+          onChange={handleChange}
+          placeholder="은행명을 입력해주세요."
+        />
+        {errors.bankName && <ErrorMessage>{errors.bankName}</ErrorMessage>}
+        <Label>계좌번호를 입력해주세요</Label>
+        <Input
+          name="accountNumber"
+          value={accountNumber}
+          onChange={handleChange}
+          placeholder="계좌번호를 입력해주세요"
+        />
+        {errors.accountNumber && (
+          <ErrorMessage>{errors.accountNumber}</ErrorMessage>
+        )}
+        <Label>입금자명</Label>
+        <Input
+          name="username"
+          value={username}
+          onChange={handleChange}
+          placeholder="입금자명을 입력해주세요."
+        />
+        {errors.username && <ErrorMessage>{errors.username}</ErrorMessage>}
+      </Form>
+      <ButtonContainer>
+        <SecondaryButton text="접수하기" onClick={onClickSubmit} />
+      </ButtonContainer>
+    </Container>
+  );
 };

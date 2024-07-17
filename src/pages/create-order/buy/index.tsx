@@ -13,17 +13,6 @@ interface BuyPageProps {
 const BuyPage: React.FC<BuyPageProps> = ({ switchStatus }) => {
   const router = useRouter();
 
-  // useEffect(() => {
-  //   if (!switchStatus) {
-  //     alert("서비스 준비 중입니다. 잠시 후 다시 시도해주세요.");
-  //     router.push("/");
-  //   }
-  // }, [switchStatus, router]);
-
-  // if (!switchStatus) {
-  //   return null;
-  // }
-
   return (
     <Layout>
       <CreateOrderHeader />
