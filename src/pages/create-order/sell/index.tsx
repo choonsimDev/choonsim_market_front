@@ -35,7 +35,7 @@ const SellPage: React.FC<SellPageProps> = ({ switchStatus }) => {
 export default SellPage;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const BASE_URL = `http://172.17.0.2:8080/switch`;
+  const BASE_URL = `http://localhost:8080/switch`;
   const switchResponse = await axios.get(BASE_URL);
   const switchStatus = switchResponse.data.isActive ?? false;
 
