@@ -24,7 +24,7 @@ const BuyPage: React.FC<BuyPageProps> = ({ switchStatus }) => {
 export default BuyPage;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const BASE_URL = `http://localhost:8080/switch`;
+  const BASE_URL = `http://172.17.0.2:8080/switch`;
   const switchResponse = await axios.get(BASE_URL);
   const switchStatus = switchResponse.data.isActive ?? false;
 

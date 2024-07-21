@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/trades`;
-const BASE_URL = `http://localhost:8080/trades`;
+const BASE_URL = `http://172.17.0.2:8080/trades`;
 
 export const getAllTrades = async () => {
   return axios.get(`${BASE_URL}`);

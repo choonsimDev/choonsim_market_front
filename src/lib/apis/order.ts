@@ -5,7 +5,7 @@ import {
   UpdateOrderStatusDto,
 } from "../types/order";
 
-const BASE_URL = `http://localhost:8080/orders`;
+const BASE_URL = `http://172.17.0.2:8080/orders`;
 
 export const createOrder = async (orderData: CreateOrderDto) => {
   return axiosClient.post(`${BASE_URL}`, orderData);

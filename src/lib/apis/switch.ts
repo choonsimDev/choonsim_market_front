@@ -1,6 +1,6 @@
 import axiosClient from "../axiosClient";
 
-const BASE_URL = `http://localhost:8080/switch`;
+const BASE_URL = `http://172.17.0.2:8080/switch`;
 
 export const getSwitches = async () => {
   return axiosClient.get(`${BASE_URL}`);

@@ -8,6 +8,53 @@ import styled from "styled-components"; // 스타일드 컴포넌트를 가져�
 import { useRouter } from "next/router"; // Next.js 라우터 훅을 가져옴
 import Modal from "react-modal"; // React 모달 컴포넌트를 가져옴
 
+const Container = styled.div`
+  display: flex;
+  height: 100%;
+  background: #fff;
+`;
+
+const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 1rem;
+  align-items: left;
+  margin-left: 20px;
+`;
+
+const StyledModal = styled(Modal)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  margin: auto;
+  padding: 2rem;
+  outline: none;
+`;
+
+const ModalTitle = styled.h2`
+  margin-bottom: 1rem;
+`;
+
+const ModalButton = styled.button`
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 1rem;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+`;
+
 // 모달의 루트 엘리먼트를 설정합니다.
 Modal.setAppElement("#__next");
 
@@ -190,50 +237,3 @@ const AdminData = () => {
 };
 
 export default AdminData; // AdminData 컴포넌트를 기본으로 내보냄
-
-const Container = styled.div`
-  display: flex;
-  height: 100%;
-  background: #fff;
-`;
-
-const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  padding: 1rem;
-  align-items: left;
-  margin-left: 20px;
-`;
-
-const StyledModal = styled(Modal)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
-  margin: auto;
-  padding: 2rem;
-  outline: none;
-`;
-
-const ModalTitle = styled.h2`
-  margin-bottom: 1rem;
-`;
-
-const ModalButton = styled.button`
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  font-size: 1rem;
-
-  &:hover {
-    background-color: #0056b3;
-  }
-`;
