@@ -237,6 +237,7 @@ const CandlestickBTCChart: React.FC = () => {
           zoomout: true,
           pan: true,
           reset: true,
+          download: false,
         },
       },
     },
@@ -253,7 +254,7 @@ const CandlestickBTCChart: React.FC = () => {
       max: maxRatio,
       tickAmount: Math.ceil((maxRatio - minRatio) / 0.0005), // 레이블을 0.0005 단위로 설정
       labels: {
-        formatter: (val) => val.toFixed(6),
+        formatter: (val) => `1:${Math.floor(1 / val)}`, // 소수점 없이 정수만 표시
       },
     },
     plotOptions: {
@@ -295,7 +296,7 @@ const CandlestickBTCChart: React.FC = () => {
               2
             )}</div>
             <div>BTC Price: ${data.btcPrice.toFixed(2)}</div>
-            <div>1 MOBICK = ${data.ratio.toFixed(6)} BTC</div>
+            <div>1 MOBICK = 1:${Math.floor(1 / data.ratio)} BTC</div>
           </div>
         `;
       },
@@ -332,7 +333,7 @@ const CandlestickBTCChart: React.FC = () => {
         options={options}
         series={series}
         type="line"
-        height={250}
+        height={300}
       />
     </ChartContainer>
   );

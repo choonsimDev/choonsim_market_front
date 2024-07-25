@@ -135,8 +135,8 @@ const CandlestickChart: React.FC = () => {
       const highestPrice = Math.max(...allHighPrices);
       const highestVolume = Math.max(...allTotalPrices);
 
-      const adjustedMinPrice = Math.floor(lowestPrice / 50000) * 50000;
-      const adjustedMaxPrice = Math.ceil(highestPrice / 50000) * 50000;
+      const adjustedMinPrice = Math.floor(lowestPrice / 100000) * 100000;
+      const adjustedMaxPrice = Math.ceil(highestPrice / 100000) * 100000;
 
       setMinPrice(adjustedMinPrice);
       setMaxPrice(adjustedMaxPrice);
@@ -211,8 +211,8 @@ const CandlestickChart: React.FC = () => {
     const highestPrice = Math.max(...allHighPrices);
     const highestVolume = Math.max(...allTotalPrices);
 
-    const adjustedMinPrice = Math.floor(lowestPrice / 50000) * 50000;
-    const adjustedMaxPrice = Math.ceil(highestPrice / 50000) * 50000;
+    const adjustedMinPrice = Math.floor(lowestPrice / 100000) * 100000;
+    const adjustedMaxPrice = Math.ceil(highestPrice / 100000) * 100000;
 
     setMinPrice(adjustedMinPrice);
     setMaxPrice(adjustedMaxPrice);
@@ -242,13 +242,41 @@ const CandlestickChart: React.FC = () => {
           zoomout: true,
           pan: true,
           reset: true,
+          download: false, // 다운로드 활성화
+        },
+      },
+      events: {
+        zoomed: function (chartContext, { xaxis }) {
+          const maxDate = new Date(
+            originalData[originalData.length - 1].date
+          ).getTime();
+          chartContext.updateOptions({
+            xaxis: {
+              min: xaxis.min,
+              max: Math.min(xaxis.max, maxDate),
+            },
+          });
+        },
+        scrolled: function (chartContext, { xaxis }) {
+          const maxDate = new Date(
+            originalData[originalData.length - 1].date
+          ).getTime();
+          chartContext.updateOptions({
+            xaxis: {
+              min: xaxis.min,
+              max: Math.min(xaxis.max, maxDate),
+            },
+          });
         },
       },
     },
     xaxis: {
       type: "datetime",
       min: new Date().setMonth(new Date().getMonth() - 3), // 최근 3개월치 데이터를 보이게 설정
-      max: new Date().getTime(),
+      max:
+        originalData.length > 0
+          ? new Date(originalData[originalData.length - 1].date).getTime()
+          : new Date().getTime(),
     },
     yaxis: [
       {
@@ -258,7 +286,7 @@ const CandlestickChart: React.FC = () => {
         show: true,
         min: minPrice,
         max: maxPrice,
-        tickAmount: Math.ceil((maxPrice - minPrice) / 50000), // 레이블을 50,000원 단위로 설정
+        tickAmount: Math.ceil((maxPrice - minPrice) / 100000), // 레이블을 100,000원 단위로 설정
         labels: {
           formatter: (value) => value.toLocaleString(),
         },
@@ -349,7 +377,7 @@ const CandlestickChart: React.FC = () => {
         options={options}
         series={series}
         type="candlestick"
-        height={250}
+        height={300}
       />
     </ChartContainer>
   );
