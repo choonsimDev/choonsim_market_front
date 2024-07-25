@@ -23,6 +23,33 @@ const Content = styled.div`
   margin-left: 20px;
 `;
 
+const SummaryContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+`;
+
+const SummaryItem = styled.div`
+  margin-bottom: 0.5rem;
+`;
+
+const FilterContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+`;
+
+const FilterSelect = styled.select`
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+`;
+
 const StyledModal = styled(Modal)`
   display: flex;
   flex-direction: column;
@@ -55,21 +82,41 @@ const ModalButton = styled.button`
   }
 `;
 
+const CopyButton = styled.button`
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  width: 300px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+
+  &:hover {
+    background-color: #218838;
+  }
+`;
+
 // 모달의 루트 엘리먼트를 설정합니다.
 Modal.setAppElement("#__next");
 
 const AdminData = () => {
-  // AdminData 컴포넌트 정의
   const [orderData, setOrderData] = useState<DataItem[]>([]); // 주문 데이터를 저장할 상태 정의
   const [prevOrderData, setPrevOrderData] = useState<DataItem[]>([]); // 이전 주문 데이터를 저장할 상태 정의
   const [isModalOpen, setIsModalOpen] = useState(false); // 모달의 상태를 저장할 상태 정의
   const router = useRouter(); // 라우터 훅을 사용
   const audioRef = useRef<HTMLAudioElement | null>(null); // 오디오 참조를 저장할 ref 정의
 
+  const [remainingAmount, setRemainingAmount] = useState(0);
+  const [remainingValue, setRemainingValue] = useState(0);
+  const [totalSellAmount, setTotalSellAmount] = useState(0);
+  const [totalBuyValue, setTotalBuyValue] = useState(0);
+
+  const [typeFilter, setTypeFilter] = useState<"ALL" | "BUY" | "SELL">("ALL");
+
   useEffect(() => {
-    // 컴포넌트가 마운트될 때 실행되는 효과 훅
     const fetchData = async () => {
-      // 비동기 데이터 가져오기 함수 정의
       try {
         await validateToken(); // 토큰을 검증함
         const { data } = await getAllOrders(); // 모든 주문 데이터를 가져옴
@@ -122,6 +169,50 @@ const AdminData = () => {
 
         setPrevOrderData(filteredData); // 이전 주문 데이터를 업데이트
         setOrderData(filteredData); // 현재 주문 데이터를 업데이트
+
+        // Summary 계산
+        const remainingAmount = filteredData
+          .filter(
+            (item: DataItem) =>
+              [1, 2, 3].includes(item.status) && item.type === "SELL"
+          )
+          .reduce(
+            (sum: number, item: DataItem) => sum + item.remainingAmount,
+            0
+          );
+
+        const remainingValue = filteredData
+          .filter(
+            (item: DataItem) =>
+              [1, 2, 3].includes(item.status) && item.type === "BUY"
+          )
+          .reduce(
+            (sum: number, item: DataItem) =>
+              sum + item.remainingAmount * item.price,
+            0
+          );
+
+        const totalSellAmount = filteredData
+          .filter(
+            (item: DataItem) =>
+              [1, 2, 3].includes(item.status) && item.type === "SELL"
+          )
+          .reduce((sum: number, item: DataItem) => sum + item.amount, 0);
+
+        const totalBuyValue = filteredData
+          .filter(
+            (item: DataItem) =>
+              [1, 2, 3].includes(item.status) && item.type === "BUY"
+          )
+          .reduce(
+            (sum: number, item: DataItem) => sum + item.amount * item.price,
+            0
+          );
+
+        setRemainingAmount(remainingAmount);
+        setRemainingValue(remainingValue);
+        setTotalSellAmount(totalSellAmount);
+        setTotalBuyValue(totalBuyValue);
       } catch (error) {
         router.push("/admin"); // 에러가 발생하면 관리자 페이지로 리다이렉트
       }
@@ -131,9 +222,7 @@ const AdminData = () => {
   }, [router, prevOrderData]); // 라우터와 이전 주문 데이터가 변경될 때마다 실행
 
   useEffect(() => {
-    // 컴포넌트가 마운트될 때 실행되는 효과 훅
     const fetchPendingOrders = async () => {
-      // 비동기 데이터 가져오기 함수 정의
       try {
         await validateToken(); // 토큰을 검증
         const { data } = await getAllOrders(); // 모든 주문 데이터를 가져옴
@@ -188,36 +277,71 @@ const AdminData = () => {
     return () => clearInterval(intervalId); // 인터벌 클리어
   }, [router, orderData]); // 라우터와 주문 데이터가 변경될 때마다 실행
 
+  const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setTypeFilter(event.target.value as "ALL" | "BUY" | "SELL");
+  };
+
+  const handleCopy = () => {
+    const textToCopy = orderData
+      .filter((item: DataItem) => item.status === 1 && item.type === "SELL")
+      .map(
+        (item: DataItem) => `${item.blockchainAddress},${item.remainingAmount}`
+      )
+      .join("\n");
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      alert("복사되었습니다!");
+    });
+  };
+
+  const filteredOrderData = orderData.filter((item: DataItem) => {
+    if (typeFilter === "ALL") return true;
+    return item.type === typeFilter;
+  });
+
   return (
-    // JSX 반환
     <Container>
       <audio ref={audioRef} src="/sound/sound1.mp3" preload="auto" />{" "}
       {/* 오디오 엘리먼트 */}
       <Sidebar /> {/* 사이드바 컴포넌트 */}
       <Content>
+        <SummaryContainer>
+          <SummaryItem>남은 수량: {remainingAmount}</SummaryItem>
+          <SummaryItem>남은 금액: {remainingValue}</SummaryItem>
+          <SummaryItem>총 입금 수량: {totalSellAmount}</SummaryItem>
+          <SummaryItem>총 입금 금액: {totalBuyValue}</SummaryItem>
+        </SummaryContainer>
+        <FilterContainer>
+          <FilterSelect value={typeFilter} onChange={handleFilterChange}>
+            <option value="ALL">전체</option>
+            <option value="BUY">buy</option>
+            <option value="SELL">sell</option>
+          </FilterSelect>
+        </FilterContainer>
         <Table
           title="입금 확인 필요"
-          data={orderData.filter((item: DataItem) => item.status === 0)}
+          data={filteredOrderData.filter((item: DataItem) => item.status === 0)}
         />{" "}
         {/* '입금 확인 필요' 상태의 주문 데이터를 가진 테이블 */}
         <Table
           title="진행중"
-          data={orderData.filter((item: DataItem) => item.status === 1)}
+          data={filteredOrderData.filter((item: DataItem) => item.status === 1)}
         />{" "}
         {/* '진행중' 상태의 주문 데이터를 가진 테이블 */}
+        <CopyButton onClick={handleCopy}>남은 모빅 반환</CopyButton>
         <Table
           title="처리 대기"
-          data={orderData.filter((item: DataItem) => item.status === 2)}
+          data={filteredOrderData.filter((item: DataItem) => item.status === 2)}
         />{" "}
         {/* '처리 대기' 상태의 주문 데이터를 가진 테이블 */}
         <Table
           title="입금 완료"
-          data={orderData.filter((item: DataItem) => item.status === 3)}
+          data={filteredOrderData.filter((item: DataItem) => item.status === 3)}
         />{" "}
         {/* '입금 완료' 상태의 주문 데이터를 가진 테이블 */}
         <Table
           title="반환/취소"
-          data={orderData.filter((item: DataItem) => item.status === 4)}
+          data={filteredOrderData.filter((item: DataItem) => item.status === 4)}
         />{" "}
         {/* '반환/취소' 상태의 주문 데이터를 가진 테이블 */}
       </Content>
