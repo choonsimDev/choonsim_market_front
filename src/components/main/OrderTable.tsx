@@ -80,8 +80,16 @@ const OrderTable: React.FC = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      const { data } = await getOrdersByStatus(1);
-      const sortedData = data.sort((a: any, b: any) => b.price - a.price);
+      // 상태 1과 상태 2의 주문을 각각 가져옵니다.
+      const { data: dataStatus1 } = await getOrdersByStatus(1);
+      const { data: dataStatus2 } = await getOrdersByStatus(2);
+
+      // 상태 1과 상태 2의 데이터를 병합합니다.
+      const combinedData = [...dataStatus1, ...dataStatus2];
+
+      const sortedData = combinedData.sort(
+        (a: any, b: any) => b.price - a.price
+      );
 
       const aggregatedData = sortedData.reduce((acc: any, order: any) => {
         const existing = acc.find(
