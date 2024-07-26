@@ -28,8 +28,9 @@ const CheckboxContainer = styled.div`
   justify-content: flex-start;
   font-size: 12px;
 `;
-const CheckboxLabel = styled.label`
+const CheckboxLabel = styled.label<{ color: string }>`
   margin-right: 10px;
+  color: ${(props) => props.color};
 `;
 const ButtonContainer = styled.div`
   display: flex;
@@ -193,15 +194,17 @@ const CandlestickChart: React.FC = () => {
   };
 
   const calculateMovingAverage = (data: TradeData[], days: number) => {
-    const maData = data.map((item, index) => {
-      if (index < days - 1) {
-        return { x: new Date(item.date), y: 0 };
-      }
-      const slice = data.slice(index - days + 1, index + 1);
-      const sum = slice.reduce((acc, cur) => acc + cur.closePrice, 0);
-      const average = sum / days;
-      return { x: new Date(item.date), y: average };
-    });
+    const maData = data
+      .map((item, index) => {
+        if (index < days - 1) {
+          return null; // 충분한 데이터가 쌓이기 전까지 null로 설정
+        }
+        const slice = data.slice(index - days + 1, index + 1);
+        const sum = slice.reduce((acc, cur) => acc + cur.closePrice, 0);
+        const average = sum / days;
+        return { x: new Date(item.date), y: average };
+      })
+      .filter((item) => item !== null); // null 값 필터링
     return maData;
   };
 
@@ -423,7 +426,7 @@ const CandlestickChart: React.FC = () => {
     <ChartContainer>
       <TitleContainer>
         <CheckboxContainer>
-          <CheckboxLabel>
+          <CheckboxLabel color="#FF0000">
             <input
               type="checkbox"
               name="ma10"
@@ -432,7 +435,7 @@ const CandlestickChart: React.FC = () => {
             />
             10일
           </CheckboxLabel>
-          <CheckboxLabel>
+          <CheckboxLabel color="#FFA500">
             <input
               type="checkbox"
               name="ma30"
@@ -441,7 +444,7 @@ const CandlestickChart: React.FC = () => {
             />
             30일
           </CheckboxLabel>
-          <CheckboxLabel>
+          <CheckboxLabel color="#800080">
             <input
               type="checkbox"
               name="ma120"
@@ -450,7 +453,7 @@ const CandlestickChart: React.FC = () => {
             />
             120일
           </CheckboxLabel>
-          <CheckboxLabel>
+          <CheckboxLabel color="#000080">
             <input
               type="checkbox"
               name="ma200"
