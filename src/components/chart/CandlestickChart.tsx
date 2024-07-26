@@ -31,6 +31,11 @@ const CheckboxContainer = styled.div`
 const CheckboxLabel = styled.label<{ color: string }>`
   margin-right: 10px;
   color: ${(props) => props.color};
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 `;
 const ButtonContainer = styled.div`
   display: flex;
@@ -363,6 +368,11 @@ const CandlestickChart: React.FC = () => {
         max: maxPrice,
         tickAmount: Math.ceil((maxPrice - minPrice) / 100000), // 레이블을 100,000원 단위로 설정
         labels: {
+          style: {
+            fontSize: "8px",
+          },
+          rotate: -45,
+
           formatter: (value) => (value !== null ? value.toLocaleString() : ""),
         },
       },
@@ -425,44 +435,8 @@ const CandlestickChart: React.FC = () => {
   return (
     <ChartContainer>
       <TitleContainer>
-        <CheckboxContainer>
-          <CheckboxLabel color="#FF0000">
-            <input
-              type="checkbox"
-              name="ma10"
-              checked={movingAverages.ma10}
-              onChange={handleCheckboxChange}
-            />
-            10일
-          </CheckboxLabel>
-          <CheckboxLabel color="#FFA500">
-            <input
-              type="checkbox"
-              name="ma30"
-              checked={movingAverages.ma30}
-              onChange={handleCheckboxChange}
-            />
-            30일
-          </CheckboxLabel>
-          <CheckboxLabel color="#800080">
-            <input
-              type="checkbox"
-              name="ma120"
-              checked={movingAverages.ma120}
-              onChange={handleCheckboxChange}
-            />
-            120일
-          </CheckboxLabel>
-          <CheckboxLabel color="#000080">
-            <input
-              type="checkbox"
-              name="ma200"
-              checked={movingAverages.ma200}
-              onChange={handleCheckboxChange}
-            />
-            200일
-          </CheckboxLabel>
-        </CheckboxContainer>
+        <div>MOBICK/WON</div>
+
         <ButtonContainer>
           <DropdownButton onClick={handleDropdownClick}>
             {timeframe === "daily"
@@ -485,6 +459,44 @@ const CandlestickChart: React.FC = () => {
           </DropdownMenu>
         </ButtonContainer>
       </TitleContainer>
+      <CheckboxContainer>
+        <CheckboxLabel color="#FF0000">
+          <input
+            type="checkbox"
+            name="ma10"
+            checked={movingAverages.ma10}
+            onChange={handleCheckboxChange}
+          />
+          MA10
+        </CheckboxLabel>
+        <CheckboxLabel color="#FFA500">
+          <input
+            type="checkbox"
+            name="ma30"
+            checked={movingAverages.ma30}
+            onChange={handleCheckboxChange}
+          />
+          MA30
+        </CheckboxLabel>
+        <CheckboxLabel color="#800080">
+          <input
+            type="checkbox"
+            name="ma120"
+            checked={movingAverages.ma120}
+            onChange={handleCheckboxChange}
+          />
+          MA120
+        </CheckboxLabel>
+        <CheckboxLabel color="#000080">
+          <input
+            type="checkbox"
+            name="ma200"
+            checked={movingAverages.ma200}
+            onChange={handleCheckboxChange}
+          />
+          MA200
+        </CheckboxLabel>
+      </CheckboxContainer>
       <ReactApexChart
         options={chartOptions}
         series={series}

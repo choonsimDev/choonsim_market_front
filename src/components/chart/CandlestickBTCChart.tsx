@@ -206,8 +206,8 @@ const CandlestickBTCChart: React.FC = () => {
     const lowestRatio = Math.min(...allRatios);
     const highestRatio = Math.max(...allRatios);
 
-    const adjustedMinRatio = Math.floor(lowestRatio / 0.0005) * 0.0005;
-    const adjustedMaxRatio = Math.ceil(highestRatio / 0.0005) * 0.0005;
+    const adjustedMinRatio = Math.floor(lowestRatio / 0.001) * 0.001;
+    const adjustedMaxRatio = Math.ceil(highestRatio / 0.001) * 0.001;
 
     setMinRatio(adjustedMinRatio);
     setMaxRatio(adjustedMaxRatio);
@@ -252,9 +252,12 @@ const CandlestickBTCChart: React.FC = () => {
       },
       min: minRatio,
       max: maxRatio,
-      tickAmount: Math.ceil((maxRatio - minRatio) / 0.0005), // 레이블을 0.0005 단위로 설정
+      tickAmount: Math.ceil((maxRatio - minRatio) / 0.001), // 레이블을 0.0005 단위로 설정
       labels: {
-        formatter: (val) => `1:${Math.floor(1 / val)}`, // 소수점 없이 정수만 표시
+        style: {
+          fontSize: "10px",
+        },
+        formatter: (val) => `  1  :  ${Math.floor(1 / val)}`, // 공백을 추가하여 레이블 길이 증가
       },
     },
     plotOptions: {
