@@ -13,6 +13,7 @@ const ChartContainer = styled.div`
   font-weight: bold;
   padding-top: 26px;
 `;
+
 const TitleContainer = styled.div`
   margin-top: 20px;
   padding-bottom: 10px;
@@ -21,6 +22,7 @@ const TitleContainer = styled.div`
   display: flex;
   justify-content: space-between;
 `;
+
 const CheckboxContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -28,9 +30,11 @@ const CheckboxContainer = styled.div`
   justify-content: flex-start;
   font-size: 12px;
 `;
+
 const CheckboxLabel = styled.label`
   margin-right: 10px;
 `;
+
 const ButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -38,6 +42,7 @@ const ButtonContainer = styled.div`
   justify-content: flex-end;
   position: relative;
 `;
+
 const DropdownButton = styled.button`
   padding: 8px 16px;
   color: #646464;
@@ -51,6 +56,7 @@ const DropdownButton = styled.button`
     background-color: #ededede7;
   }
 `;
+
 const DropdownMenu = styled.div<{ show: boolean }>`
   position: absolute;
   top: 100%;
@@ -64,15 +70,16 @@ const DropdownMenu = styled.div<{ show: boolean }>`
   font-size: 12px;
   color: #646464;
 `;
+
 const DropdownItem = styled.div`
   padding: 8px 16px;
   color: #646464;
-
   cursor: pointer;
   &:hover {
     background-color: #ccc;
   }
 `;
+
 interface TradeData {
   date: string;
   openPrice: number;
@@ -188,12 +195,12 @@ const CandlestickChart: React.FC = () => {
   const calculateMovingAverage = (data: TradeData[], days: number) => {
     const maData = data.map((item, index) => {
       if (index < days - 1) {
-        return { x: new Date(item.date), y: null };
+        return { x: new Date(item.date), y: [0] as number[] }; // null 대신 [0]으로 대체
       }
       const slice = data.slice(index - days + 1, index + 1);
       const sum = slice.reduce((acc, cur) => acc + cur.closePrice, 0);
       const average = sum / days;
-      return { x: new Date(item.date), y: average };
+      return { x: new Date(item.date), y: [average] as number[] };
     });
     return maData;
   };
@@ -353,7 +360,7 @@ const CandlestickChart: React.FC = () => {
         max: maxPrice,
         tickAmount: Math.ceil((maxPrice - minPrice) / 100000), // 레이블을 100,000원 단위로 설정
         labels: {
-          formatter: (value) => (value !== null ? value.toLocaleString() : ""),
+          formatter: (value) => value.toLocaleString(),
         },
       },
       {
