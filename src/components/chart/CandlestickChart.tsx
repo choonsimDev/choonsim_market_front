@@ -199,18 +199,27 @@ const CandlestickChart: React.FC = () => {
   };
 
   const calculateMovingAverage = (data: TradeData[], days: number) => {
-    const maData = data
-      .map((item, index) => {
-        if (index < days - 1) {
-          return null; // 충분한 데이터가 쌓이기 전까지 null로 설정
+    if (data.length < days) return [];
+
+    const maData: { x: Date; y: number }[] = [];
+    let sum = 0;
+
+    for (let i = 0; i < data.length; i++) {
+      sum += data[i].closePrice;
+
+      if (i >= days - 1) {
+        if (i >= days) {
+          sum -= data[i - days].closePrice;
         }
-        const slice = data.slice(index - days + 1, index + 1);
-        const sum = slice.reduce((acc, cur) => acc + cur.closePrice, 0);
-        const average = sum / days;
-        return { x: new Date(item.date), y: average };
-      })
-      .filter((item) => item !== null); // null 값 필터링
-    return maData;
+        maData.push({ x: new Date(data[i].date), y: sum / days });
+      } else {
+        // 충분한 데이터가 쌓이기 전까지는 y 값을 0으로 설정
+        maData.push({ x: new Date(data[i].date), y: 0 });
+      }
+    }
+
+    // y 값이 0이 아닌 데이터만 반환 (0인 값은 충분한 데이터가 쌓이기 전의 값)
+    return maData.filter((item) => item.y !== 0);
   };
 
   useEffect(() => {
