@@ -23,6 +23,18 @@ const TitleContainer = styled.div`
   justify-content: space-between;
 `;
 
+const CheckboxContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: 12px;
+`;
+
+const CheckboxLabel = styled.label`
+  margin-right: 10px;
+`;
+
 const ButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -89,9 +101,7 @@ interface VolumeData {
 }
 
 const CandlestickChart: React.FC = () => {
-  const [series, setSeries] = useState<
-    { name: string; type: string; data: CandlestickData[] | VolumeData[] }[]
-  >([
+  const [series, setSeries] = useState<any[]>([
     {
       name: "Candlestick",
       type: "candlestick",
@@ -110,6 +120,12 @@ const CandlestickChart: React.FC = () => {
   const [timeframe, setTimeframe] = useState("daily");
   const [originalData, setOriginalData] = useState<TradeData[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [movingAverages, setMovingAverages] = useState({
+    ma10: false,
+    ma30: false,
+    ma120: false,
+    ma200: false,
+  });
 
   useEffect(() => {
     const run = async () => {
@@ -177,6 +193,23 @@ const CandlestickChart: React.FC = () => {
     return aggregatedData;
   };
 
+  const calculateMovingAverage = (data: TradeData[], days: number) => {
+    const maData = data.map((item, index) => {
+      if (index < days - 1) {
+        return { x: new Date(item.date), y: null };
+      }
+      const slice = data.slice(index - days + 1, index + 1);
+      const sum = slice.reduce((acc, cur) => acc + cur.closePrice, 0);
+      const average = sum / days;
+      return { x: new Date(item.date), y: average };
+    });
+    return maData;
+  };
+
+  useEffect(() => {
+    updateChart(timeframe, originalData);
+  }, [movingAverages]);
+
   const updateChart = (timeframe: string, data: TradeData[]) => {
     let filteredData: TradeData[];
 
@@ -197,10 +230,45 @@ const CandlestickChart: React.FC = () => {
       y: stat.totalPrice,
     }));
 
-    setSeries([
+    const newSeries = [
       { name: "Candlestick", type: "candlestick", data: candlestickData },
       { name: "Volume", type: "bar", data: volumeData },
-    ]);
+    ];
+
+    if (movingAverages.ma10) {
+      newSeries.push({
+        name: "10-day MA",
+        type: "line",
+        data: calculateMovingAverage(filteredData, 10),
+        color: "#FF0000",
+      });
+    }
+    if (movingAverages.ma30) {
+      newSeries.push({
+        name: "30-day MA",
+        type: "line",
+        data: calculateMovingAverage(filteredData, 30),
+        color: "#FFA500",
+      });
+    }
+    if (movingAverages.ma120) {
+      newSeries.push({
+        name: "120-day MA",
+        type: "line",
+        data: calculateMovingAverage(filteredData, 120),
+        color: "#800080",
+      });
+    }
+    if (movingAverages.ma200) {
+      newSeries.push({
+        name: "200-day MA",
+        type: "line",
+        data: calculateMovingAverage(filteredData, 200),
+        color: "#000080",
+      });
+    }
+
+    setSeries(newSeries);
 
     const allLowPrices = filteredData.map((stat: TradeData) => stat.lowPrice);
     const allHighPrices = filteredData.map((stat: TradeData) => stat.highPrice);
@@ -231,7 +299,12 @@ const CandlestickChart: React.FC = () => {
     setShowDropdown(false);
   };
 
-  const options: ApexOptions = {
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setMovingAverages((prev) => ({ ...prev, [name]: checked }));
+  };
+
+  const chartOptions: ApexOptions = {
     chart: {
       height: 500,
       toolbar: {
@@ -242,7 +315,7 @@ const CandlestickChart: React.FC = () => {
           zoomout: true,
           pan: true,
           reset: true,
-          download: false, // 다운로드 활성화
+          download: false, // 다운로드 비활성화
         },
       },
       events: {
@@ -350,7 +423,44 @@ const CandlestickChart: React.FC = () => {
   return (
     <ChartContainer>
       <TitleContainer>
-        <div>MOBICK/WON</div>
+        <CheckboxContainer>
+          <CheckboxLabel>
+            <input
+              type="checkbox"
+              name="ma10"
+              checked={movingAverages.ma10}
+              onChange={handleCheckboxChange}
+            />
+            10일
+          </CheckboxLabel>
+          <CheckboxLabel>
+            <input
+              type="checkbox"
+              name="ma30"
+              checked={movingAverages.ma30}
+              onChange={handleCheckboxChange}
+            />
+            30일
+          </CheckboxLabel>
+          <CheckboxLabel>
+            <input
+              type="checkbox"
+              name="ma120"
+              checked={movingAverages.ma120}
+              onChange={handleCheckboxChange}
+            />
+            120일
+          </CheckboxLabel>
+          <CheckboxLabel>
+            <input
+              type="checkbox"
+              name="ma200"
+              checked={movingAverages.ma200}
+              onChange={handleCheckboxChange}
+            />
+            200일
+          </CheckboxLabel>
+        </CheckboxContainer>
         <ButtonContainer>
           <DropdownButton onClick={handleDropdownClick}>
             {timeframe === "daily"
@@ -374,7 +484,7 @@ const CandlestickChart: React.FC = () => {
         </ButtonContainer>
       </TitleContainer>
       <ReactApexChart
-        options={options}
+        options={chartOptions}
         series={series}
         type="candlestick"
         height={300}
