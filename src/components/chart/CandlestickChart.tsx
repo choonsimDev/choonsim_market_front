@@ -74,7 +74,6 @@ const DropdownMenu = styled.div<{ show: boolean }>`
 const DropdownItem = styled.div`
   padding: 8px 16px;
   color: #646464;
-
   cursor: pointer;
   &:hover {
     background-color: #ccc;
@@ -194,15 +193,17 @@ const CandlestickChart: React.FC = () => {
   };
 
   const calculateMovingAverage = (data: TradeData[], days: number) => {
-    const maData = data.map((item, index) => {
-      if (index < days - 1) {
-        return { x: new Date(item.date), y: null };
-      }
-      const slice = data.slice(index - days + 1, index + 1);
-      const sum = slice.reduce((acc, cur) => acc + cur.closePrice, 0);
-      const average = sum / days;
-      return { x: new Date(item.date), y: average };
-    });
+    const maData = data
+      .map((item, index) => {
+        if (index < days - 1) {
+          return null;
+        }
+        const slice = data.slice(index - days + 1, index + 1);
+        const sum = slice.reduce((acc, cur) => acc + cur.closePrice, 0);
+        const average = sum / days;
+        return { x: new Date(item.date), y: average };
+      })
+      .filter((item) => item !== null); // null 값 제거
     return maData;
   };
 
@@ -240,7 +241,6 @@ const CandlestickChart: React.FC = () => {
         name: "10-day MA",
         type: "line",
         data: calculateMovingAverage(filteredData, 10),
-        color: "#FF0000",
       });
     }
     if (movingAverages.ma30) {
@@ -248,7 +248,6 @@ const CandlestickChart: React.FC = () => {
         name: "30-day MA",
         type: "line",
         data: calculateMovingAverage(filteredData, 30),
-        color: "#FFA500",
       });
     }
     if (movingAverages.ma120) {
@@ -256,7 +255,6 @@ const CandlestickChart: React.FC = () => {
         name: "120-day MA",
         type: "line",
         data: calculateMovingAverage(filteredData, 120),
-        color: "#800080",
       });
     }
     if (movingAverages.ma200) {
@@ -264,7 +262,6 @@ const CandlestickChart: React.FC = () => {
         name: "200-day MA",
         type: "line",
         data: calculateMovingAverage(filteredData, 200),
-        color: "#000080",
       });
     }
 
@@ -412,6 +409,7 @@ const CandlestickChart: React.FC = () => {
         },
       },
     },
+    colors: ["#FF0000", "#FFA500", "#800080", "#000080"], // 이동평균선 색상
     legend: {
       show: false,
     },
