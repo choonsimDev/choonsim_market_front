@@ -13,7 +13,6 @@ const ChartContainer = styled.div`
   font-weight: bold;
   padding-top: 26px;
 `;
-
 const TitleContainer = styled.div`
   margin-top: 20px;
   padding-bottom: 10px;
@@ -22,7 +21,6 @@ const TitleContainer = styled.div`
   display: flex;
   justify-content: space-between;
 `;
-
 const CheckboxContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -30,11 +28,9 @@ const CheckboxContainer = styled.div`
   justify-content: flex-start;
   font-size: 12px;
 `;
-
 const CheckboxLabel = styled.label`
   margin-right: 10px;
 `;
-
 const ButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -42,7 +38,6 @@ const ButtonContainer = styled.div`
   justify-content: flex-end;
   position: relative;
 `;
-
 const DropdownButton = styled.button`
   padding: 8px 16px;
   color: #646464;
@@ -56,7 +51,6 @@ const DropdownButton = styled.button`
     background-color: #ededede7;
   }
 `;
-
 const DropdownMenu = styled.div<{ show: boolean }>`
   position: absolute;
   top: 100%;
@@ -70,7 +64,6 @@ const DropdownMenu = styled.div<{ show: boolean }>`
   font-size: 12px;
   color: #646464;
 `;
-
 const DropdownItem = styled.div`
   padding: 8px 16px;
   color: #646464;
@@ -80,7 +73,6 @@ const DropdownItem = styled.div`
     background-color: #ccc;
   }
 `;
-
 interface TradeData {
   date: string;
   openPrice: number;
@@ -100,8 +92,15 @@ interface VolumeData {
   y: number;
 }
 
+interface ChartData {
+  name: string;
+  type: string;
+  data: CandlestickData[] | VolumeData[] | { x: Date; y: number }[];
+  color?: string;
+}
+
 const CandlestickChart: React.FC = () => {
-  const [series, setSeries] = useState<any[]>([
+  const [series, setSeries] = useState<ChartData[]>([
     {
       name: "Candlestick",
       type: "candlestick",
@@ -196,12 +195,12 @@ const CandlestickChart: React.FC = () => {
   const calculateMovingAverage = (data: TradeData[], days: number) => {
     const maData = data.map((item, index) => {
       if (index < days - 1) {
-        return { x: new Date(item.date), y: [0] as number[] }; // null 대신 [0]으로 대체
+        return { x: new Date(item.date), y: 0 };
       }
       const slice = data.slice(index - days + 1, index + 1);
       const sum = slice.reduce((acc, cur) => acc + cur.closePrice, 0);
       const average = sum / days;
-      return { x: new Date(item.date), y: [average] as number[] };
+      return { x: new Date(item.date), y: average };
     });
     return maData;
   };
@@ -230,7 +229,7 @@ const CandlestickChart: React.FC = () => {
       y: stat.totalPrice,
     }));
 
-    const newSeries = [
+    const newSeries: ChartData[] = [
       { name: "Candlestick", type: "candlestick", data: candlestickData },
       { name: "Volume", type: "bar", data: volumeData },
     ];
@@ -240,6 +239,7 @@ const CandlestickChart: React.FC = () => {
         name: "10-day MA",
         type: "line",
         data: calculateMovingAverage(filteredData, 10),
+        color: "#FF0000",
       });
     }
     if (movingAverages.ma30) {
@@ -247,6 +247,7 @@ const CandlestickChart: React.FC = () => {
         name: "30-day MA",
         type: "line",
         data: calculateMovingAverage(filteredData, 30),
+        color: "#FFA500",
       });
     }
     if (movingAverages.ma120) {
@@ -254,6 +255,7 @@ const CandlestickChart: React.FC = () => {
         name: "120-day MA",
         type: "line",
         data: calculateMovingAverage(filteredData, 120),
+        color: "#800080",
       });
     }
     if (movingAverages.ma200) {
@@ -261,6 +263,7 @@ const CandlestickChart: React.FC = () => {
         name: "200-day MA",
         type: "line",
         data: calculateMovingAverage(filteredData, 200),
+        color: "#000080",
       });
     }
 
@@ -357,7 +360,7 @@ const CandlestickChart: React.FC = () => {
         max: maxPrice,
         tickAmount: Math.ceil((maxPrice - minPrice) / 100000), // 레이블을 100,000원 단위로 설정
         labels: {
-          formatter: (value) => value.toLocaleString(),
+          formatter: (value) => (value !== null ? value.toLocaleString() : ""),
         },
       },
       {
@@ -414,7 +417,6 @@ const CandlestickChart: React.FC = () => {
     tooltip: {
       shared: true,
     },
-    colors: ["#FF0000", "#FFA500", "#800080", "#000080"], // 색상 추가
   };
 
   return (
