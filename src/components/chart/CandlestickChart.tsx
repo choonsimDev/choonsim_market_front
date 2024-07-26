@@ -74,6 +74,7 @@ const DropdownMenu = styled.div<{ show: boolean }>`
 const DropdownItem = styled.div`
   padding: 8px 16px;
   color: #646464;
+
   cursor: pointer;
   &:hover {
     background-color: #ccc;
@@ -239,7 +240,6 @@ const CandlestickChart: React.FC = () => {
         name: "10-day MA",
         type: "line",
         data: calculateMovingAverage(filteredData, 10),
-        color: "#FF0000",
       });
     }
     if (movingAverages.ma30) {
@@ -247,7 +247,6 @@ const CandlestickChart: React.FC = () => {
         name: "30-day MA",
         type: "line",
         data: calculateMovingAverage(filteredData, 30),
-        color: "#FFA500",
       });
     }
     if (movingAverages.ma120) {
@@ -255,7 +254,6 @@ const CandlestickChart: React.FC = () => {
         name: "120-day MA",
         type: "line",
         data: calculateMovingAverage(filteredData, 120),
-        color: "#800080",
       });
     }
     if (movingAverages.ma200) {
@@ -263,7 +261,6 @@ const CandlestickChart: React.FC = () => {
         name: "200-day MA",
         type: "line",
         data: calculateMovingAverage(filteredData, 200),
-        color: "#000080",
       });
     }
 
@@ -417,6 +414,7 @@ const CandlestickChart: React.FC = () => {
     tooltip: {
       shared: true,
     },
+    colors: ["#FF0000", "#FFA500", "#800080", "#000080"], // 색상 추가
   };
 
   return (
