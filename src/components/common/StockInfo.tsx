@@ -86,15 +86,29 @@ const StockInfo: React.FC<StockInfoProps> = ({
     }
   };
 
+  // todayAvgPrice를 포맷팅하는 함수
+  const formatPrice = (price: number) => {
+    return (
+      new Intl.NumberFormat("ko-KR", {
+        style: "currency",
+        currency: "KRW",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      })
+        .format(price)
+        .replace("₩", "") + "원"
+    );
+  };
+
   return (
     <StoreInfoBlock>
       <StoreInfoText>오늘의 평균 가격</StoreInfoText>
       <StockInfoContainer>
         <PriceContainer>
-          <TodayPrice>{todayAvgPrice}</TodayPrice>
+          <TodayPrice>{formatPrice(todayAvgPrice)}</TodayPrice>
           <PriceInfo isPositive={isPositive}>
             {isPositive ? "+" : "-"}
-            {Math.abs(difference)} {icon}{" "}
+            {formatPrice(Math.abs(difference))} {icon}{" "}
             {Math.abs(percentageChange).toFixed(2)}% (전일대비)
           </PriceInfo>
         </PriceContainer>

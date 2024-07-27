@@ -235,10 +235,23 @@ function getTodayDate() {
   return `${year}-${month}-${date}(${day})`;
 }
 
+interface TodayOrder {
+  id: number;
+  orderNumber: number;
+  nickname: string;
+  status: number;
+  phoneNumber: string;
+  cancellationReason?: string;
+  type: string;
+  price: number;
+  amount: number;
+  accountNumber: string;
+}
+
 const TodayOrderTable: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [orders, setOrders] = useState<TodayOrder[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<TodayOrder[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<TodayOrder | null>(null);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [nicknameInput, setNicknameInput] = useState("");
@@ -248,11 +261,17 @@ const TodayOrderTable: React.FC = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       const { data } = await getTodayOrders();
-      setOrders(data);
+      // orderNumber에 따라 내림차순 정렬
+      const sortedData = data.sort(
+        (a: TodayOrder, b: TodayOrder) => b.orderNumber - a.orderNumber
+      );
+      setOrders(sortedData);
       setFilteredOrders(
         activeFilter !== null
-          ? data.filter((order: Order) => order.status === activeFilter)
-          : data
+          ? sortedData.filter(
+              (order: TodayOrder) => order.status === activeFilter
+            )
+          : sortedData
       );
     };
 
@@ -262,7 +281,7 @@ const TodayOrderTable: React.FC = () => {
     return () => clearInterval(interval); // Clean up interval on component unmount
   }, [activeFilter]);
 
-  const handleRowClick = (order: Order) => {
+  const handleRowClick = (order: TodayOrder) => {
     setSelectedOrder(order);
     setShowVerificationModal(true);
   };
@@ -285,7 +304,9 @@ const TodayOrderTable: React.FC = () => {
     if (status === null) {
       setFilteredOrders(orders);
     } else {
-      const filtered = orders.filter((order: Order) => order.status === status);
+      const filtered = orders.filter(
+        (order: TodayOrder) => order.status === status
+      );
       setFilteredOrders(filtered);
     }
   };
@@ -337,7 +358,9 @@ const TodayOrderTable: React.FC = () => {
           {filteredOrders.map((order) => (
             <TableRow key={order.id} onClick={() => handleRowClick(order)}>
               <TableCellContainer>
-                <TableCell style={{ fontSize: "8px" }}>{order.id}</TableCell>
+                <TableCell style={{ fontSize: "11px" }}>
+                  {order.orderNumber}
+                </TableCell>
               </TableCellContainer>
               <TableCellContainer>
                 <TableCell>{maskNickname(order.nickname)}</TableCell>

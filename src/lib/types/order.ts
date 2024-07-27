@@ -18,6 +18,7 @@ export interface Order {
   updatedAt: Date;
   cancellationReason?: string;
   bankName: string;
+  orderNumber: string;
 }
 
 export interface CreateOrderDto {
