@@ -242,6 +242,7 @@ export interface DataItem {
   accountNumber: string;
   processed: boolean; // Add processed field
   createdAt: string; // 날짜 정보를 포함하는 필드 추가
+  orderNumber: string; // 날짜 정보를 포함하는 필드 추가
 }
 
 interface OptionButtonProps {

@@ -23,7 +23,7 @@ const FilterContainer = styled.div`
 `;
 
 const FilterButton = styled.button<{ active: boolean }>`
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: bold;
   color: #646464;
   padding: 8px 8px;
@@ -88,9 +88,9 @@ const TableCell = styled.div<StatusProps>`
       ? "1px solid #fe4e48"
       : props.status === 1
       ? "1px solid #0078ff"
-      : props.status === 2
-      ? "1px solid #14B998"
       : props.status === 3
+      ? "1px solid #14B998"
+      : props.status === 4
       ? "1px solid #646464"
       : "none"};
 
@@ -99,9 +99,9 @@ const TableCell = styled.div<StatusProps>`
       ? "#fe4e48"
       : props.status === 1
       ? "#0078ff"
-      : props.status === 2
-      ? "#14B998"
       : props.status === 3
+      ? "#14B998"
+      : props.status === 4
       ? "#646464"
       : "black"};
 
@@ -110,17 +110,17 @@ const TableCell = styled.div<StatusProps>`
       ? "rgba(254, 78, 72, 0.1)"
       : props.status === 1
       ? "rgba(0, 120, 255, 0.1)"
-      : props.status === 2
-      ? "rgba(20, 185, 152, 0.1)"
       : props.status === 3
+      ? "rgba(20, 185, 152, 0.1)"
+      : props.status === 4
       ? "rgba(100, 100, 100, 0.1)"
       : "transparent"};
 
   padding: ${(props) =>
     props.status === 0 ||
     props.status === 1 ||
-    props.status === 2 ||
-    props.status === 3
+    props.status === 3 ||
+    props.status === 4
       ? "0.125rem 0.5rem"
       : "auto"};
 `;
@@ -215,11 +215,13 @@ function formatStatus(status: number) {
     case 0:
       return "입금 확인 중";
     case 1:
-      return "신청 완료";
+      return "진행중";
     case 2:
-      return "심부름 완료";
+      return "처리중";
     case 3:
-      return "반환";
+      return "심부름 완료";
+    case 4:
+      return "반환/취소";
     default:
       return "";
   }
@@ -330,19 +332,19 @@ const TodayOrderTable: React.FC = () => {
           active={activeFilter === 1}
           onClick={() => handleFilterClick(1)}
         >
-          신청 완료
-        </FilterButton>
-        <FilterButton
-          active={activeFilter === 2}
-          onClick={() => handleFilterClick(2)}
-        >
-          심부름 완료
+          진행중
         </FilterButton>
         <FilterButton
           active={activeFilter === 3}
           onClick={() => handleFilterClick(3)}
         >
-          반환
+          심부름 완료
+        </FilterButton>
+        <FilterButton
+          active={activeFilter === 4}
+          onClick={() => handleFilterClick(4)}
+        >
+          반환/취소
         </FilterButton>
       </FilterContainer>
       <TableBlock>

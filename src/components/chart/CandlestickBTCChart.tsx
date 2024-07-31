@@ -299,7 +299,7 @@ const CandlestickBTCChart: React.FC = () => {
               2
             )}</div>
             <div>BTC Price: ${data.btcPrice.toFixed(2)}</div>
-            <div>1 MOBICK = 1:${Math.floor(1 / data.ratio)} BTC</div>
+            <div>1 MOBICK = 1:${Math.floor(1 / data.ratio)}</div>
           </div>
         `;
       },

@@ -112,6 +112,10 @@ const AdminData = () => {
   const [remainingValue, setRemainingValue] = useState(0);
   const [totalSellAmount, setTotalSellAmount] = useState(0);
   const [totalBuyValue, setTotalBuyValue] = useState(0);
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc" | null;
+  }>({ key: "", direction: null });
 
   const [typeFilter, setTypeFilter] = useState<"ALL" | "BUY" | "SELL">("ALL");
 
@@ -141,12 +145,6 @@ const AdminData = () => {
           const itemDateString = itemDate.toISOString().split("T")[0]; // 주문 날짜를 문자열로 변환
           return itemDateString === todayDateString; // 오늘 날짜와 같은지 비교
         });
-
-        filteredData.sort(
-          // 주문 데이터를 생성 날짜 기준으로 내림차순 정렬
-          (a: DataItem, b: DataItem) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
 
         if (prevOrderData.length > 0) {
           // 이전 주문 데이터가 있을 경우
@@ -321,29 +319,24 @@ const AdminData = () => {
         <Table
           title="입금 확인 필요"
           data={filteredOrderData.filter((item: DataItem) => item.status === 0)}
-        />{" "}
-        {/* '입금 확인 필요' 상태의 주문 데이터를 가진 테이블 */}
+        />
         <Table
           title="진행중"
           data={filteredOrderData.filter((item: DataItem) => item.status === 1)}
-        />{" "}
-        {/* '진행중' 상태의 주문 데이터를 가진 테이블 */}
+        />
         <CopyButton onClick={handleCopy}>남은 모빅 반환</CopyButton>
         <Table
           title="처리 대기"
           data={filteredOrderData.filter((item: DataItem) => item.status === 2)}
-        />{" "}
-        {/* '처리 대기' 상태의 주문 데이터를 가진 테이블 */}
+        />
         <Table
           title="입금 완료"
           data={filteredOrderData.filter((item: DataItem) => item.status === 3)}
-        />{" "}
-        {/* '입금 완료' 상태의 주문 데이터를 가진 테이블 */}
+        />
         <Table
           title="반환/취소"
           data={filteredOrderData.filter((item: DataItem) => item.status === 4)}
-        />{" "}
-        {/* '반환/취소' 상태의 주문 데이터를 가진 테이블 */}
+        />
       </Content>
       <StyledModal
         isOpen={isModalOpen}

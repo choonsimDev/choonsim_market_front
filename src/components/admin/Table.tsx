@@ -100,19 +100,27 @@ interface TableProps {
 // Copy animation
 const copyAnimation = keyframes`
   0% {
-    background-color: yellow;
+    background-color: #00FFA3;
   }
   100% {
     background-color: inherit;
   }
 `;
 
+const formatOrderNumber = (orderNumber: string): string => {
+  const year = orderNumber.slice(0, 4);
+  const month = orderNumber.slice(4, 6);
+  const day = orderNumber.slice(6, 8);
+  const sequence = orderNumber.slice(8).padStart(4, "0");
+  return `${year}-${month}-${day}-${sequence}`;
+};
+
 const Table: React.FC<TableProps> = ({ title, data }) => {
   // Table 컴포넌트 정의
   const [isModalOpen, setModalOpen] = useState(false); // 모달의 상태를 저장할 상태 정의
   const [selectedAddress, setSelectedAddress] = useState(""); // 선택된 주소를 저장할 상태 정의
   const [tableData, setTableData] = useState(data); // 테이블 데이터를 저장할 상태 정의
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null); // 복사된 인덱스를 저장할 상태 정의
+  const [copiedId, setCopiedId] = useState<string | null>(null); // 복사된 id를 저장할 상태 정의
   const [copiedField, setCopiedField] = useState<string | null>(null); // 복사된 필드를 저장할 상태 정의
   const [processedOrders, setProcessedOrders] = useState<string[]>([]); // 처리된 주문을 저장할 상태 정의
 
@@ -155,8 +163,8 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
   const columnWidths = [
     // 각 열의 너비 설정
     "100px", // Option button
-    "100px", // createdAt
-    "200px", // ID
+    "200px", // createdAt
+    "150px", // orderNumber
     "50px", // type
     "80px", // price
     "50px", // amount
@@ -188,15 +196,15 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
 
   const totalWidth = "1646px"; // 테이블 전체 너비 설정
 
-  const copyToClipboard = (text: string, index: number, field: string) => {
+  const copyToClipboard = (text: string, id: string, field: string) => {
     // 클립보드 복사 함수 정의
     navigator.clipboard.writeText(text).then(() => {
       // 텍스트를 클립보드에 복사
-      setCopiedIndex(index); // 복사된 인덱스를 상태에 저장
+      setCopiedId(id); // 복사된 id를 상태에 저장
       setCopiedField(field); // 복사된 필드를 상태에 저장
       setTimeout(() => {
         // 1초 후에 상태 초기화
-        setCopiedIndex(null);
+        setCopiedId(null);
         setCopiedField(null);
       }, 1000);
     });
@@ -263,50 +271,57 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
                 onClick={() =>
                   copyToClipboard(
                     formatDate(item.createdAt),
-                    index,
+                    item.id,
                     "createdAt"
                   )
                 }
-                isCopied={copiedIndex === index && copiedField === "createdAt"}
+                isCopied={copiedId === item.id && copiedField === "createdAt"}
               >
                 {formatDate(item.createdAt)}
               </DataColumn>
 
               <DataColumn
                 style={{ width: columnWidths[2] }}
-                onClick={() => copyToClipboard(item.id, index, "id")}
-                isCopied={copiedIndex === index && copiedField === "id"}
+                onClick={() =>
+                  copyToClipboard(
+                    formatOrderNumber(item.orderNumber),
+                    item.id,
+                    "orderNumber"
+                  )
+                }
+                isCopied={copiedId === item.id && copiedField === "orderNumber"}
               >
-                {item.id}
+                {formatOrderNumber(item.orderNumber)}
               </DataColumn>
+
               <DataColumn
                 style={{ width: columnWidths[3] }}
                 onClick={() =>
                   copyToClipboard(
                     item.type === "BUY" ? "구매" : "판매",
-                    index,
+                    item.id,
                     "type"
                   )
                 }
-                isCopied={copiedIndex === index && copiedField === "type"}
+                isCopied={copiedId === item.id && copiedField === "type"}
               >
                 {item.type === "BUY" ? "구매" : "판매"}
               </DataColumn>
               <DataColumn
                 style={{ width: columnWidths[4] }}
                 onClick={() =>
-                  copyToClipboard(item.price.toString(), index, "price")
+                  copyToClipboard(item.price.toString(), item.id, "price")
                 }
-                isCopied={copiedIndex === index && copiedField === "price"}
+                isCopied={copiedId === item.id && copiedField === "price"}
               >
                 {item.price}
               </DataColumn>
               <DataColumn
                 style={{ width: columnWidths[5] }}
                 onClick={() =>
-                  copyToClipboard(item.amount.toString(), index, "amount")
+                  copyToClipboard(item.amount.toString(), item.id, "amount")
                 }
-                isCopied={copiedIndex === index && copiedField === "amount"}
+                isCopied={copiedId === item.id && copiedField === "amount"}
               >
                 {item.amount}
               </DataColumn>
@@ -315,12 +330,12 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
                 onClick={() =>
                   copyToClipboard(
                     item.remainingAmount.toString(),
-                    index,
+                    item.id,
                     "remainingAmount"
                   )
                 }
                 isCopied={
-                  copiedIndex === index && copiedField === "remainingAmount"
+                  copiedId === item.id && copiedField === "remainingAmount"
                 }
               >
                 {item.remainingAmount}
@@ -329,20 +344,18 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
               <DataColumn
                 style={{ width: columnWidths[7] }}
                 onClick={() =>
-                  copyToClipboard(item.nickname, index, "nickname")
+                  copyToClipboard(item.nickname, item.id, "nickname")
                 }
-                isCopied={copiedIndex === index && copiedField === "nickname"}
+                isCopied={copiedId === item.id && copiedField === "nickname"}
               >
                 {item.nickname}
               </DataColumn>
               <DataColumn
                 style={{ width: columnWidths[8] }}
                 onClick={() =>
-                  copyToClipboard(item.phoneNumber, index, "phoneNumber")
+                  copyToClipboard(item.phoneNumber, item.id, "phoneNumber")
                 }
-                isCopied={
-                  copiedIndex === index && copiedField === "phoneNumber"
-                }
+                isCopied={copiedId === item.id && copiedField === "phoneNumber"}
               >
                 {item.phoneNumber}
               </DataColumn>
@@ -356,12 +369,12 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
                 onClick={() =>
                   copyToClipboard(
                     item.blockchainAddress,
-                    index,
+                    item.id,
                     "blockchainAddress"
                   )
                 }
                 isCopied={
-                  copiedIndex === index && copiedField === "blockchainAddress"
+                  copiedId === item.id && copiedField === "blockchainAddress"
                 }
               >
                 {item.blockchainAddress.length > 34
@@ -371,9 +384,9 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
               <DataColumn
                 style={{ width: columnWidths[10] }}
                 onClick={() =>
-                  copyToClipboard(item.bankName, index, "bankName")
+                  copyToClipboard(item.bankName, item.id, "bankName")
                 }
-                isCopied={copiedIndex === index && copiedField === "bankName"}
+                isCopied={copiedId === item.id && copiedField === "bankName"}
               >
                 {item.bankName}
               </DataColumn>
@@ -382,9 +395,9 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
                   width: columnWidths[11],
                 }}
                 onClick={() =>
-                  copyToClipboard(item.username, index, "username")
+                  copyToClipboard(item.username, item.id, "username")
                 }
-                isCopied={copiedIndex === index && copiedField === "username"}
+                isCopied={copiedId === item.id && copiedField === "username"}
               >
                 {item.username}
               </DataColumn>
@@ -393,10 +406,10 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
                   width: columnWidths[12],
                 }}
                 onClick={() =>
-                  copyToClipboard(item.accountNumber, index, "accountNumber")
+                  copyToClipboard(item.accountNumber, item.id, "accountNumber")
                 }
                 isCopied={
-                  copiedIndex === index && copiedField === "accountNumber"
+                  copiedId === item.id && copiedField === "accountNumber"
                 }
               >
                 {item.accountNumber}
