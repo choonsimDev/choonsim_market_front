@@ -88,6 +88,8 @@ const TableCell = styled.div<StatusProps>`
       ? "1px solid #fe4e48"
       : props.status === 1
       ? "1px solid #0078ff"
+      : props.status === 2
+      ? "1px solid #ffcc00"
       : props.status === 3
       ? "1px solid #14B998"
       : props.status === 4
@@ -99,6 +101,8 @@ const TableCell = styled.div<StatusProps>`
       ? "#fe4e48"
       : props.status === 1
       ? "#0078ff"
+      : props.status === 2
+      ? "#ffcc00"
       : props.status === 3
       ? "#14B998"
       : props.status === 4
@@ -110,6 +114,8 @@ const TableCell = styled.div<StatusProps>`
       ? "rgba(254, 78, 72, 0.1)"
       : props.status === 1
       ? "rgba(0, 120, 255, 0.1)"
+      : props.status === 2
+      ? "rgba(255, 204, 0, 0.1)"
       : props.status === 3
       ? "rgba(20, 185, 152, 0.1)"
       : props.status === 4
@@ -119,6 +125,7 @@ const TableCell = styled.div<StatusProps>`
   padding: ${(props) =>
     props.status === 0 ||
     props.status === 1 ||
+    props.status === 2 ||
     props.status === 3 ||
     props.status === 4
       ? "0.125rem 0.5rem"
@@ -215,9 +222,9 @@ function formatStatus(status: number) {
     case 0:
       return "입금 확인 중";
     case 1:
-      return "진행중";
+      return "신청완료";
     case 2:
-      return "처리중";
+      return "진행중";
     case 3:
       return "심부름 완료";
     case 4:
@@ -332,13 +339,13 @@ const TodayOrderTable: React.FC = () => {
           active={activeFilter === 1}
           onClick={() => handleFilterClick(1)}
         >
-          진행중
+          신청완료
         </FilterButton>
         <FilterButton
           active={activeFilter === 3}
           onClick={() => handleFilterClick(3)}
         >
-          심부름 완료
+          심부름완료
         </FilterButton>
         <FilterButton
           active={activeFilter === 4}

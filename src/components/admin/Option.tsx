@@ -62,7 +62,6 @@ const Backdrop = styled.div`
 `;
 
 const PopupContainer = styled.div`
-  width: 600px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -77,19 +76,50 @@ const Popup = styled.div`
   padding: 0.5rem 0.8rem;
 `;
 
+const PopupTitle = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  color: #000;
+  font-size: 28px;
+  font-weight: bold;
+  padding: 1rem;
+`;
+
 const PopupText = styled.p`
   display: flex;
   flex-direction: row;
   gap: 0.5rem;
-  width: 21.875rem;
+  width: 300px;
   color: #575f6e;
-  font-family: Poppins;
   font-size: 1.25rem;
   font-style: normal;
   font-weight: 600;
   line-height: 1.75rem; /* 140% */
   padding-left: 1rem;
-  margin: 0.8rem 0;
+  margin-top: 15px;
+  margin-bottom: 15px;
+`;
+const AddressText = styled.p`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  color: #575f6e;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.75rem; /* 140% */
+  padding-left: 1rem;
+  margin-top: 15px;
+  margin-bottom: 15px;
+`;
+const PopupTextContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  border-top: 1px solid #575f6e;
 `;
 
 const HighlightedBuy = styled.span`
@@ -112,79 +142,47 @@ const HighlightedSell = styled.span`
 
 const CloseButton = styled.button`
   display: inline-flex;
-  height: 3rem;
-  padding: 0rem 1.5rem 0rem 1.5rem;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
   flex-shrink: 0;
-  border-radius: 0.25rem;
+  border-radius: 10px;
   border: 1px solid #bbbfc1;
-  background: #fff;
-  color: #000;
+  background: #00ffa3;
   text-align: center;
-  font-family: Poppins;
-  font-size: 1rem;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 1.5rem; /* 150% */
+  font-size: 14px;
+  color: #000;
   text-transform: capitalize;
+  padding: 1rem 1.5rem 1rem 1.5rem;
+  cursor: pointer;
 `;
 
 const ButtonContainer = styled.div`
   width: 100%;
   display: flex;
-  justify-content: center;
-`;
-
-const BlockChainAddressContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
-  margin-bottom: 1rem;
-`;
-
-const BlockChainAddress = styled.p`
-  display: flex;
-  width: 21.875rem;
-  height: 2.44331rem;
-  flex-direction: column;
-  justify-content: center;
-  flex-shrink: 0;
-  color: #0038ff;
-  font-family: Inter;
-  font-size: 1.25rem;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  text-align: center;
-  margin: 0;
 `;
 
 const CopyButton = styled.div`
   display: flex;
-  width: 3.6875rem;
-  height: 1.75738rem;
   flex-direction: column;
   justify-content: center;
   flex-shrink: 0;
   color: #757575;
   text-align: center;
-  font-family: Poppins;
-  font-size: 1rem;
+  font-size: 18px;
   font-style: normal;
   font-weight: 700;
   line-height: 1.5rem; /* 150% */
   text-transform: capitalize;
   transition: color 0.3s;
-
+  padding: 1rem 1.5rem 1rem 1.5rem;
   cursor: pointer;
   &:hover {
     color: #000;
     text-decoration: underline;
   }
-
   &:active {
     transform: translateY(1px);
   }
@@ -396,25 +394,53 @@ const OptionButton: React.FC<OptionButtonProps> = ({
           {item.status === 0 ? (
             <>
               <DropdownItem disabled>입금 확인중</DropdownItem>
-              <DropdownItem onClick={() => handleOptionClick("진행중")}>
-                진행중
+              <DropdownItem
+                onClick={() => handleOptionClick("진행중")}
+                style={{ color: "#dcb700", fontWeight: "bold" }}
+              >
+                입금 확인
               </DropdownItem>
-              <DropdownItem disabled>처리 대기</DropdownItem>
               <DropdownItem onClick={() => handleOptionClick("반환/취소")}>
                 반환/취소
               </DropdownItem>
+            </>
+          ) : item.status === 2 ? (
+            <>
+              <DropdownItem disabled>입금 확인중</DropdownItem>
+
+              <DropdownItem disabled>진행중</DropdownItem>
+              <DropdownItem
+                onClick={() => handleOptionClick("처리 대기")}
+                style={{ color: "#329EFF", fontWeight: "bold" }}
+              >
+                입금 완료
+              </DropdownItem>
+              <DropdownItem disabled>반환/취소</DropdownItem>
+            </>
+          ) : item.status === 1 ? (
+            <>
+              <DropdownItem onClick={() => handleOptionClick("입금 확인중")}>
+                입금 확인중
+              </DropdownItem>
+              <DropdownItem disabled>진행중</DropdownItem>
+              <DropdownItem onClick={() => handleOptionClick("매칭 완료")}>
+                매칭 완료
+              </DropdownItem>
+            </>
+          ) : item.status === 3 ? (
+            <>
+              <DropdownItem onClick={() => handleOptionClick("입금 확인중")}>
+                입금 확인중
+              </DropdownItem>
+              <DropdownItem disabled>진행중</DropdownItem>
+              <DropdownItem disabled>매칭 완료</DropdownItem>
             </>
           ) : (
             <>
               <DropdownItem onClick={() => handleOptionClick("입금 확인중")}>
                 입금 확인중
               </DropdownItem>
-              <DropdownItem onClick={() => handleOptionClick("진행중")}>
-                진행중
-              </DropdownItem>
-              <DropdownItem onClick={() => handleOptionClick("처리 대기")}>
-                처리 대기
-              </DropdownItem>
+
               <DropdownItem onClick={() => handleOptionClick("반환/취소")}>
                 반환/취소
               </DropdownItem>
@@ -427,46 +453,79 @@ const OptionButton: React.FC<OptionButtonProps> = ({
           <PopupContainer onClick={(e) => e.stopPropagation()}>
             {popupData.type === "BUY" ? (
               <Popup>
+                <PopupTitle>입금확인</PopupTitle>
                 <PopupText>
-                  구분 : <HighlightedBuy>구매</HighlightedBuy>
+                  구분 : <HighlightedBuy>구매자</HighlightedBuy>
                 </PopupText>
-                <PopupText>입금자명 : {popupData.username}</PopupText>
-                <PopupText>
-                  신청 가격 : {popupData.price.toLocaleString()}원
-                </PopupText>
-                <PopupText>신청 수량 : {popupData.amount} 개</PopupText>
-                <PopupText>
-                  입금한 금액 :{" "}
-                  <HighlightedBuy>
-                    {(popupData.price * popupData.amount).toLocaleString()}원
-                  </HighlightedBuy>
-                </PopupText>
+                <PopupTextContainer>
+                  <PopupText>입금자명 : {popupData.username}</PopupText>
+                  <div>|</div>
+                  <PopupText>닉네임 : {popupData.nickname}</PopupText>
+                </PopupTextContainer>
+                <PopupTextContainer>
+                  <PopupText>
+                    신청 가격 : {popupData.price.toLocaleString()}원
+                  </PopupText>
+                  <div>|</div>
+                  <PopupText>신청 수량 : {popupData.amount} 개</PopupText>
+                </PopupTextContainer>
+                <PopupTextContainer>
+                  <PopupText>
+                    입금 확인 금액 :{" "}
+                    <HighlightedBuy
+                      style={{ color: "red", fontWeight: "bold" }}
+                    >
+                      {(popupData.price * popupData.amount).toLocaleString()}원
+                    </HighlightedBuy>
+                  </PopupText>
+                </PopupTextContainer>
                 <ButtonContainer>
                   <CloseButton onClick={handleConfirmClick}>
-                    확인 완료
+                    확인했습니다
                   </CloseButton>
                 </ButtonContainer>
               </Popup>
             ) : (
               <Popup>
+                <PopupTitle>입금확인</PopupTitle>
+
                 <PopupText>
-                  구분 : <HighlightedSell>판매</HighlightedSell>
+                  구분 : <HighlightedSell>판매자</HighlightedSell>
                 </PopupText>
-                <PopupText>지갑주소 : {popupData.blockchainAddress}</PopupText>
-                <PopupText>
-                  신청 가격 : {popupData.price.toLocaleString()}원
-                </PopupText>
-                <PopupText>
-                  신청 수량 :{" "}
-                  <HighlightedSell>{popupData.amount} 개</HighlightedSell>
-                </PopupText>
-                <PopupText>
-                  입금받은 수량 :{" "}
-                  <HighlightedSell>{popupData.amount} 개</HighlightedSell>
-                </PopupText>
+                <PopupTextContainer>
+                  <PopupText>입금자명 : {popupData.username}</PopupText>
+                  <div>|</div>
+                  <PopupText>닉네임 : {popupData.nickname}</PopupText>
+                </PopupTextContainer>
+                <PopupTextContainer>
+                  <PopupText>
+                    신청 가격 : {popupData.price.toLocaleString()}원
+                  </PopupText>
+                  <div>|</div>
+
+                  <PopupText>신청 수량 : {popupData.amount} 개</PopupText>
+                </PopupTextContainer>
+                <PopupTextContainer>
+                  <AddressText>
+                    입금 주소 :{" "}
+                    <HighlightedSell>
+                      {popupData.blockchainAddress}
+                    </HighlightedSell>
+                  </AddressText>
+                </PopupTextContainer>
+                <PopupTextContainer>
+                  <PopupText>
+                    입금 확인 수량 :{" "}
+                    <HighlightedSell
+                      style={{ color: "blue", fontWeight: "bold" }}
+                    >
+                      {popupData.amount} 개
+                    </HighlightedSell>
+                  </PopupText>
+                </PopupTextContainer>
                 <ButtonContainer>
                   <CloseButton onClick={handleConfirmClick}>
-                    확인 완료
+                    확인했습니다
                   </CloseButton>
                 </ButtonContainer>
               </Popup>
@@ -474,44 +533,66 @@ const OptionButton: React.FC<OptionButtonProps> = ({
           </PopupContainer>
         </Backdrop>
       )}
+
       {showPopup2 && popupData && (
         <Backdrop onClick={() => setShowPopup2(false)}>
           <PopupContainer onClick={(e) => e.stopPropagation()}>
             {popupData.type === "BUY" ? (
               <Popup>
-                <PopupText>구분 : 구매자</PopupText>
-                <PopupText>신청자명 : {popupData.username}</PopupText>
-                <PopupText>
-                  신청 가격 : {popupData.price.toLocaleString()}원
-                </PopupText>
-                <PopupText>
-                  신청 수량 : {popupData.amount - popupData.remainingAmount} 개
-                </PopupText>
-                <PopupText>
-                  입금액 :{" "}
-                  <HighlightedSell>
-                    {" "}
-                    {popupData.amount - popupData.remainingAmount} Mo{" "}
-                  </HighlightedSell>
-                </PopupText>
-                <BlockChainAddressContainer>
-                  <BlockChainAddress>
-                    {popupData.blockchainAddress}
-                  </BlockChainAddress>
+                <PopupTitle>입금을 완료하세요.</PopupTitle>
+                <PopupTextContainer>
+                  <PopupText>
+                    구분 : <HighlightedBuy>구매자</HighlightedBuy>
+                  </PopupText>
+                </PopupTextContainer>
+                <PopupTextContainer>
+                  <PopupText>신청자명 : {popupData.username}</PopupText>
+                </PopupTextContainer>
+                <PopupTextContainer>
+                  <PopupText>
+                    신청 가격 : {popupData.price.toLocaleString()}원
+                  </PopupText>
+                  <div>|</div>
+
+                  <PopupText>
+                    신청 수량 : {popupData.amount - popupData.remainingAmount}{" "}
+                    개
+                  </PopupText>
+                </PopupTextContainer>
+                <PopupTextContainer>
+                  <AddressText>
+                    주소 :{" "}
+                    <HighlightedBuy>
+                      {" "}
+                      {popupData.blockchainAddress}
+                    </HighlightedBuy>
+                  </AddressText>
+                  <div>|</div>
+                  <PopupText>
+                    입금액 :{" "}
+                    <HighlightedBuy>
+                      {" "}
+                      {popupData.amount - popupData.remainingAmount} Mo{" "}
+                    </HighlightedBuy>
+                  </PopupText>
+                </PopupTextContainer>
+                <PopupTextContainer>
                   <CopyButton
                     onClick={() => handleCopy(popupData.blockchainAddress)}
                   >
-                    복사
+                    복사하기
                   </CopyButton>
-                </BlockChainAddressContainer>
+                </PopupTextContainer>
                 <ButtonContainer>
                   <CloseButton onClick={handleConfirmProcessing}>
-                    입금 완료
+                    모빅 전송 완료
                   </CloseButton>
                 </ButtonContainer>
               </Popup>
             ) : (
               <Popup>
+                <PopupTitle>입금을 완료하세요.</PopupTitle>
+
                 <PopupText>구분 : 판매자</PopupText>
                 <PopupText>신청자명 : {popupData.username}</PopupText>
                 <PopupText>
@@ -555,7 +636,7 @@ const OptionButton: React.FC<OptionButtonProps> = ({
                 </BankInfo>
                 <ButtonContainer>
                   <CloseButton onClick={handleCompletePayment}>
-                    입금 완료
+                    원화 입금 완료
                   </CloseButton>
                 </ButtonContainer>
               </Popup>

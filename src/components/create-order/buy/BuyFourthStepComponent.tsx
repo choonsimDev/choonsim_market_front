@@ -15,7 +15,7 @@ const Title = styled.h2`
 `;
 
 const Description = styled.div`
-  color: #575F6E;
+  color: #575f6e;
   font-size: 13px;
 `;
 
@@ -67,49 +67,46 @@ const ButtonContainer = styled.div`
 `;
 
 const RedText = styled.span`
-  color: #FF0000;
+  color: #ff0000;
 `;
 
 interface BuyFourthStepComponentProps {
-    orderData: any;
+  orderData: any;
 }
 
 export const BuyFourthStepComponent: React.FC<BuyFourthStepComponentProps> = ({
-    orderData
+  orderData,
 }) => {
-    const router = useRouter();
-    const onClickSubmit = async () => {
-        router.push('/');
-    };
+  const router = useRouter();
+  const onClickSubmit = async () => {
+    router.push("/");
+  };
 
-    return (
-        <Container>
-            <img src="/svg/fourth-progress-bar.svg" alt="progress-bar" />
-            <Title style={{marginBottom: '8px'}}>접수되었습니다.</Title>
-            <Title style={{marginBottom: '8px', marginBlockStart: '4px'}}>입금을 완료해주세요.</Title>
-            <Title style={{color: 'grey', fontSize: '18px'}}>접수번호: {orderData.id}</Title>
-            <Title><RedText>현재 상태: 입금확인중</RedText></Title>
-            <SectionTitle>신청 내용을 확인하세요.</SectionTitle>
-            <Form>
-                <Label>닉네임</Label>
-                <Input
-                    name="nickname"
-                    value={orderData.nickname}
-                />
-                <Label>휴대폰 번호</Label>
-                <Input
-                    name="phoneNumber"
-                    value={orderData.phoneNumber}
-                />
-                <Label>입금주소</Label>
-                <Input
-                    name="blockchainAddress"
-                    value={orderData.blockchainAddress}
-                />
-            </Form>
-            <ButtonContainer>
-                <SecondaryButton text="돌아가기" onClick={onClickSubmit} />
-            </ButtonContainer>
-        </Container>
-    );
+  return (
+    <Container>
+      <img src="/svg/fourth-progress-bar.svg" alt="progress-bar" />
+      <Title style={{ marginBottom: "8px" }}>접수되었습니다.</Title>
+      <Title style={{ marginBottom: "8px", marginBlockStart: "4px" }}>
+        입금을 완료해주세요.
+      </Title>
+      <Title style={{ color: "grey", fontSize: "18px" }}>
+        접수번호: {orderData.orderNumber}
+      </Title>
+      <Title>
+        <RedText>현재 상태: 입금확인중</RedText>
+      </Title>
+      <SectionTitle>신청 내용을 확인하세요.</SectionTitle>
+      <Form>
+        <Label>닉네임</Label>
+        <Input name="nickname" value={orderData.nickname} />
+        <Label>휴대폰 번호</Label>
+        <Input name="phoneNumber" value={orderData.phoneNumber} />
+        <Label>입금주소</Label>
+        <Input name="blockchainAddress" value={orderData.blockchainAddress} />
+      </Form>
+      <ButtonContainer>
+        <SecondaryButton text="돌아가기" onClick={onClickSubmit} />
+      </ButtonContainer>
+    </Container>
+  );
 };
