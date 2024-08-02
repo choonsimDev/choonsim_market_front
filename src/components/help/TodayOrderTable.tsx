@@ -178,8 +178,9 @@ const CustomInput = styled.input`
 `;
 
 const Label = styled.label`
-  font-size: 0.875rem;
-  color: #333;
+  font-size: 14px;
+  font-weight: bold;
+  color: #000;
 `;
 
 const CloseButton = styled.button`
@@ -190,12 +191,12 @@ const CloseButton = styled.button`
 
 const ModalHeader = styled.header`
   display: flex;
-  align-items: center;
+  justify-content: flex-start;
+  flex-direction: row;
   background-color: #fff;
-  justify-content: space-between;
   font-weight: bold;
   font-size: 14px;
-  padding-bottom: 27px;
+  padding-bottom: 32px;
 `;
 
 const ModalStatusHeader = styled.div`
@@ -204,6 +205,22 @@ const ModalStatusHeader = styled.div`
   font-weight: bold;
   text-align: center;
   padding-bottom: 17px;
+`;
+
+const ModalTitleContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const ModalTitle = styled.div`
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+`;
+
+const ModalContent = styled.div`
+  font-size: 14px;
+  margin-bottom: 20px;
 `;
 
 interface StatusProps {
@@ -387,8 +404,8 @@ const TodayOrderTable: React.FC = () => {
         isOpen={showVerificationModal}
         onRequestClose={() => setShowVerificationModal(false)}
       >
-        <ModalHeader>
-          <div>접수번호: {selectedOrder?.id}</div>
+        <ModalTitleContainer>
+          <ModalTitle>접수 현황 체크</ModalTitle>
           <div>
             <CloseButton
               onClick={() => {
@@ -397,10 +414,15 @@ const TodayOrderTable: React.FC = () => {
                 setPhoneNumberInput("");
               }}
             >
-              <img src="/svg/back.svg" alt="back" />
+              <img src="/svg/icon/button_close.png" alt="back" />
             </CloseButton>
           </div>
+        </ModalTitleContainer>
+        <ModalHeader>
+          <Label>접수번호:</Label>
+          <Label>{selectedOrder?.orderNumber}</Label>
         </ModalHeader>
+
         <InputContainer>
           <Label>신청 닉네임</Label>
           <CustomInput

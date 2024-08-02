@@ -394,10 +394,7 @@ const OptionButton: React.FC<OptionButtonProps> = ({
           {item.status === 0 ? (
             <>
               <DropdownItem disabled>입금 확인중</DropdownItem>
-              <DropdownItem
-                onClick={() => handleOptionClick("진행중")}
-                style={{ color: "#dcb700", fontWeight: "bold" }}
-              >
+              <DropdownItem onClick={() => handleOptionClick("진행중")}>
                 입금 확인
               </DropdownItem>
               <DropdownItem onClick={() => handleOptionClick("반환/취소")}>
