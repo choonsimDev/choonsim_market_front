@@ -403,8 +403,9 @@ const OptionButton: React.FC<OptionButtonProps> = ({
             </>
           ) : item.status === 2 ? (
             <>
-              <DropdownItem disabled>입금 확인중</DropdownItem>
-
+              <DropdownItem onClick={() => handleOptionClick("입금 확인중")}>
+                입금 확인중
+              </DropdownItem>
               <DropdownItem disabled>진행중</DropdownItem>
               <DropdownItem
                 onClick={() => handleOptionClick("처리 대기")}
