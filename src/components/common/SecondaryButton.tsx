@@ -8,10 +8,13 @@ const SecondaryButtonBlock = styled.div`
 
 const SecondaryButtonContainer = styled.button`
   border: 1px solid #bbbfc1;
-  border-radius: 5px;
-  padding: 12px 32px;
-  background-color: #fff;
+  width: 296px;
+  height: 40px;
+  border-radius: 8px;
+  padding: 8px 12px 8px 12px;
+  background-color: #0078ff;
   font-size: 16px;
+  color: white;
 `;
 
 interface SecondaryButtonProps {
@@ -26,7 +29,7 @@ export const SecondaryButton: React.FC<SecondaryButtonProps> = ({
   return (
     <SecondaryButtonBlock>
       <SecondaryButtonContainer onClick={onClick}>
-        {text} <img src="/svg/next-icon.svg" />
+        {text}
       </SecondaryButtonContainer>
     </SecondaryButtonBlock>
   );

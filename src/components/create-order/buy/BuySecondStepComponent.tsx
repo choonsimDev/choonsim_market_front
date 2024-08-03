@@ -1,21 +1,33 @@
 import { SecondaryButton } from "@/components/common/SecondaryButton";
 import { createOrder } from "@/lib/apis/order";
 import React, { useEffect, useState } from "react";
+import { colors } from "react-select/dist/declarations/src/theme";
 import styled from "styled-components";
 
 const Container = styled.div`
   text-align: center;
-  font-family: Arial, sans-serif;
+`;
+
+const StyledImage = styled.img`
+  width: 100%;
+  margin: 0 auto;
+  max-width: 400px;
 `;
 
 const Title = styled.h2`
   color: #242731;
   margin-bottom: 12px;
+  font-size: 22px;
 `;
 
 const Description = styled.div`
-  color: #ff0000;
-  font-size: 25px;
+  color: #646464;
+  font-size: 16px;
+  font-weight: bold;
+  flex-direction: row;
+  display: flex;
+  text-align: center;
+  justify-content: center;
 `;
 
 const Divider = styled.div`
@@ -26,31 +38,41 @@ const Divider = styled.div`
 `;
 
 const SectionTitle = styled.div`
-  color: #333;
+  color: #000;
   font-weight: bold;
   margin-top: 18px;
-  margin-bottom: 32px;
+  margin-bottom: 4px;
   padding-inline: 20px;
   text-align: left;
-  font-size: 20px;
+  font-size: 18px;
+`;
+
+const Instruction = styled.div`
+  color: #646464;
+  font-size: 14px;
+  padding-inline: 20px;
+  text-align: left;
 `;
 
 const Form = styled.div`
   text-align: left;
+  margin-top: 20px;
   padding-inline: 20px;
 `;
 
 const Label = styled.label`
   display: block;
   margin: 10px 0 5px;
-  color: #333;
+  color: #000;
   font-size: 14px;
   font-weight: bold;
+  padding-left: 10px;
 `;
 
 const Input = styled.input`
   padding: 10px;
   margin: 10px 0;
+  font-size: 18px;
   width: 100%;
   border: none;
   border-bottom: 1px solid #ccc;
@@ -173,20 +195,27 @@ export const BuySecondStepComponent: React.FC<BuySecondStepComponentProps> = ({
 
   return (
     <Container>
-      <img src="/svg/second-progress-bar.svg" alt="progress-bar" />
+      <StyledImage src="/svg/img/progressbar-buy-02.png" alt="progress-bar" />
       <Title>
         입금 금액은
         <RedText> {formatNumber(data.price * data.amount)}원</RedText> 입니다.
       </Title>
       <Description>
-        {data.price}원, {data.amount}개 신청
+        희망 가격 : {data.price}원 * {data.amount}개
+      </Description>
+      <Description>
+        총 구매가 : <RedText>{formatNumber(data.price * data.amount)}</RedText>
+        원
       </Description>
       <Divider />
-      <SectionTitle>입금 정보를 입력해주세요.</SectionTitle>
+      <SectionTitle>모빅 주소 입력</SectionTitle>
+      <Instruction>
+        주소를 복사하거나 공개주소 QR코드를 스캔해주세요.
+      </Instruction>
+      <Instruction>매칭이 완료되면 아래 주소로 모빅이 전송됩니다.</Instruction>
       <Form>
         <Label>
-          <RedText>{data.nickname}</RedText> 님의 주소 (매칭 완료시 아래 주소로
-          전송됩니다.)
+          <RedText>{data.nickname}</RedText> 님의 주소
         </Label>
         <Input
           name="blockchainAddress"
@@ -198,7 +227,11 @@ export const BuySecondStepComponent: React.FC<BuySecondStepComponentProps> = ({
           <ErrorMessage>{errors.blockchainAddress}</ErrorMessage>
         )}
       </Form>
-      <SectionTitle>심부름 완료시 입금받을 계좌를 적어주세요.</SectionTitle>
+      <SectionTitle>은행 정보 입력</SectionTitle>
+      <Instruction>입금해주시는 계좌를 입력해주세요.</Instruction>
+      <Instruction>
+        (장이 종료되거나, 오입금 시 반환은 이 계좌를 통해 진행됩니다.)
+      </Instruction>
       <Form>
         <Label>은행명</Label>
         <Input
@@ -208,7 +241,7 @@ export const BuySecondStepComponent: React.FC<BuySecondStepComponentProps> = ({
           placeholder="은행명을 입력해주세요."
         />
         {errors.bankName && <ErrorMessage>{errors.bankName}</ErrorMessage>}
-        <Label>계좌번호를 입력해주세요</Label>
+        <Label>계좌번호</Label>
         <Input
           name="accountNumber"
           value={accountNumber}

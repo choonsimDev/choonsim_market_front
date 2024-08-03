@@ -5,17 +5,23 @@ import styled from "styled-components";
 
 const Container = styled.div`
   text-align: center;
-  font-family: Arial, sans-serif;
 `;
 
 const Title = styled.h2`
   color: #ff0000;
   margin-bottom: 20px;
+  font-size: 24px;
+`;
+
+const StyledImage = styled.img`
+  width: 100%;
+  margin: 0 auto;
+  max-width: 400px;
 `;
 
 const Description = styled.div`
-  color: #666;
-  font-size: 12px;
+  color: #000;
+  font-size: 14px;
 `;
 
 const Divider = styled.div`
@@ -26,19 +32,19 @@ const Divider = styled.div`
 `;
 
 const SectionTitle = styled.div`
-  color: #333;
+  color: #000;
   font-weight: bold;
   margin-top: 18px;
   margin-bottom: 4px;
   padding-inline: 20px;
   text-align: left;
-  font-size: 20px;
+  font-size: 18px;
 `;
 
 const Instruction = styled.div`
-  color: #666;
-  font-size: 12px;
-  margin-bottom: 20px;
+  color: #646464;
+  font-size: 14px;
+  margin-bottom: 24px;
   padding-inline: 20px;
   text-align: left;
 `;
@@ -51,21 +57,23 @@ const Form = styled.div`
 const Label = styled.label`
   display: block;
   margin: 10px 0 5px;
-  color: #333;
+  color: #000;
   font-size: 14px;
   font-weight: bold;
+  padding-left: 10px;
 `;
 
 const Input = styled.input`
   padding: 10px;
   margin: 10px 0;
+  font-size: 18px;
   width: 100%;
   border: none;
   border-bottom: 1px solid #ccc;
   box-sizing: border-box;
   &:focus {
     outline: none;
-    border-bottom: 2px solid #0066cc;
+    border-bottom: 2px solid #0078ff;
   }
 `;
 
@@ -204,16 +212,16 @@ export const BuyFirstStepComponent: React.FC<BuyFirstStepComponentProps> = ({
 
   return (
     <Container>
-      <img src="/svg/first-progress-bar.svg" alt="progress-bar" />
+      <StyledImage src="/svg/img/progressbar-buy-01.png" alt="progress-bar" />
       <Title style={{ color: "FF0000" }}>구매 심부름 요청</Title>
       <Description>
-        어서오세요. BTCMobick 구매대행 서비스, 춘심 심부름센터입니다.
+        어서오세요. BTCMobick 구매대행 서비스, <b>춘심 심부름센터</b>입니다.
       </Description>
       <Description>
         호가창이 있고 대중에게 익명이 보장되는 방식으로 진행됩니다.
       </Description>
       <Divider />
-      <SectionTitle>아래 정보를 입력해주세요.</SectionTitle>
+      <SectionTitle>기본 정보 입력</SectionTitle>
       <Instruction>
         문제 발생시에만 연락하며, 심부름 종료시 파기합니다. 오입력으로 인한
         책임은 본인에게 있습니다.
@@ -259,7 +267,7 @@ export const BuyFirstStepComponent: React.FC<BuyFirstStepComponentProps> = ({
         {errors.total && <ErrorMessage>{errors.total}</ErrorMessage>}
       </Form>
       <ButtonContainer>
-        <SecondaryButton text="Go Next" onClick={onClickNext} />
+        <SecondaryButton text="다음으로" onClick={onClickNext} />
       </ButtonContainer>
     </Container>
   );

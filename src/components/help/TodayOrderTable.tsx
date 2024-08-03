@@ -159,13 +159,24 @@ const CustomModal = styled(Modal)`
   border-radius: 10px;
   width: 80%;
   max-width: 400px;
+  height: 80%;
   padding: 20px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+
   outline: none;
 `;
 
 const InputContainer = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+`;
+
+const InputContainerBox = styled.div`
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  max-height: 80%;
+  overflow-y: auto; /* 높이가 80%를 초과할 경우 스크롤 활성화 */
+  justify-content: space-between;
 `;
 
 const CustomInput = styled.input`
@@ -193,10 +204,12 @@ const ModalHeader = styled.header`
   display: flex;
   justify-content: flex-start;
   flex-direction: row;
+  align-items: center;
   background-color: #fff;
   font-weight: bold;
   font-size: 14px;
   padding-bottom: 32px;
+  gap: 5px;
 `;
 
 const ModalStatusHeader = styled.div`
@@ -219,8 +232,14 @@ const ModalTitle = styled.div`
 `;
 
 const ModalContent = styled.div`
-  font-size: 14px;
-  margin-bottom: 20px;
+  margin-bottom: 32px;
+`;
+
+const ContentsContainer = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  background-color: #f8f8f8;
+  border-radius: 8px;
 `;
 
 interface StatusProps {
@@ -272,6 +291,9 @@ interface TodayOrder {
   price: number;
   amount: number;
   accountNumber: string;
+  blockchainAddress: string;
+  bankName: string;
+  username: string;
 }
 
 const TodayOrderTable: React.FC = () => {
@@ -287,7 +309,6 @@ const TodayOrderTable: React.FC = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       const { data } = await getTodayOrders();
-      // orderNumber에 따라 내림차순 정렬
       const sortedData = data.sort(
         (a: TodayOrder, b: TodayOrder) => b.orderNumber - a.orderNumber
       );
@@ -321,7 +342,7 @@ const TodayOrderTable: React.FC = () => {
       setShowVerificationModal(false);
       setShowDetailsModal(true);
     } else {
-      alert("Details do not match.");
+      alert("입력 정보가 일치하지 않습니다.");
     }
   };
 
@@ -335,6 +356,30 @@ const TodayOrderTable: React.FC = () => {
       );
       setFilteredOrders(filtered);
     }
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+
+    switch (name) {
+      case "nicknameInput":
+        setNicknameInput(value);
+        break;
+      case "phoneNumberInput":
+        const formattedPhone = formatPhoneNumber(value);
+        setPhoneNumberInput(formattedPhone);
+        break;
+    }
+  };
+
+  const formatPhoneNumber = (value: string) => {
+    const digits = value.replace(/\D/g, "");
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 7)
+      return `${digits.slice(0, 3)}-${digits.slice(3, 7)}`;
+    return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
   };
 
   return (
@@ -419,34 +464,41 @@ const TodayOrderTable: React.FC = () => {
           </div>
         </ModalTitleContainer>
         <ModalHeader>
-          <Label>접수번호:</Label>
-          <Label>{selectedOrder?.orderNumber}</Label>
+          <Label>접수번호</Label>
+          <div>|</div>
+          <Label style={{ color: "#0078FF" }}>
+            {selectedOrder?.orderNumber}
+          </Label>
         </ModalHeader>
+        <ModalContent>
+          <InputContainer>
+            <Label>신청 닉네임</Label>
+            <CustomInput
+              name="nicknameInput"
+              value={nicknameInput}
+              onChange={handleChange}
+              placeholder="신청 닉네임을 작성하세요"
+            />
+          </InputContainer>
+          <InputContainer>
+            <Label>신청 전화번호</Label>
+            <CustomInput
+              name="phoneNumberInput"
+              value={phoneNumberInput}
+              onChange={handleChange}
+              placeholder="010-0000-0000"
+            />
+          </InputContainer>
+        </ModalContent>
 
-        <InputContainer>
-          <Label>신청 닉네임</Label>
-          <CustomInput
-            value={nicknameInput}
-            onChange={(e) => setNicknameInput(e.target.value)}
-            placeholder="신청 닉네임을 작성하세요"
-          />
-        </InputContainer>
-        <InputContainer>
-          <Label>신청 전화번호</Label>
-          <CustomInput
-            value={phoneNumberInput}
-            onChange={(e) => setPhoneNumberInput(e.target.value)}
-            placeholder="010-0000-0000"
-          />
-        </InputContainer>
-        <SecondaryButton text="확인하기" onClick={verifyDetails} />
+        <SecondaryButton text="다음" onClick={verifyDetails} />
       </CustomModal>
       <CustomModal
         isOpen={showDetailsModal}
         onRequestClose={() => setShowDetailsModal(false)}
       >
-        <ModalHeader>
-          <div>접수번호: {selectedOrder?.id}</div>
+        <ModalTitleContainer>
+          <ModalTitle>접수 현황 체크</ModalTitle>
           <div>
             <CloseButton
               onClick={() => {
@@ -455,46 +507,80 @@ const TodayOrderTable: React.FC = () => {
                 setPhoneNumberInput("");
               }}
             >
-              <img src="/svg/back.svg" alt="back" />
+              <img src="/svg/icon/button_close.png" alt="back" />
             </CloseButton>
           </div>
-        </ModalHeader>
-        <ModalStatusHeader>
-          현재 상태: {formatStatus(selectedOrder?.status!)}
-        </ModalStatusHeader>
-        {selectedOrder?.status === 3 && (
+        </ModalTitleContainer>
+        <InputContainerBox>
+          <ModalHeader>
+            <Label>현재 상태</Label>
+            <div>|</div>
+            {selectedOrder && (
+              <TableCell status={selectedOrder.status}>
+                {formatStatus(selectedOrder.status)}
+              </TableCell>
+            )}
+          </ModalHeader>
+
+          {selectedOrder?.status === 4 && (
+            <InputContainer>
+              <Label>반환/취소 사유</Label>
+              <CustomInput
+                value={selectedOrder?.cancellationReason || ""}
+                readOnly
+                style={{ color: "#666" }}
+              />
+            </InputContainer>
+          )}
+
           <InputContainer>
-            <Label>사유</Label>
+            <Label>신청 닉네임</Label>
             <CustomInput
-              value={selectedOrder?.cancellationReason || ""}
+              value={selectedOrder?.nickname}
               readOnly
+              style={{ color: "#666" }}
             />
           </InputContainer>
-        )}
-        <InputContainer>
-          <Label>신청 닉네임</Label>
-          <CustomInput value={selectedOrder?.nickname} readOnly />
-        </InputContainer>
-        <InputContainer>
-          <Label>구분</Label>
-          <CustomInput
-            value={selectedOrder?.type === "BUY" ? "구매" : "판매"}
-            readOnly
-          />
-        </InputContainer>
-        <InputContainer>
-          <Label>신청 내용</Label>
-          <CustomInput
-            value={`${selectedOrder?.price}원 / ${selectedOrder?.amount}개`}
-            readOnly
-          />
-        </InputContainer>
-        <InputContainer>
-          <Label>신청 계좌번호</Label>
-          <CustomInput value={selectedOrder?.accountNumber} readOnly />
-        </InputContainer>
+          <InputContainer>
+            <Label>구분</Label>
+            <CustomInput
+              value={selectedOrder?.type === "BUY" ? "구매" : "판매"}
+              readOnly
+              style={{ color: "#666" }}
+            />
+          </InputContainer>
+          <InputContainer>
+            <Label>신청 내용</Label>
+            <CustomInput
+              value={`${selectedOrder?.price}원 | ${selectedOrder?.amount}개`}
+              readOnly
+              style={{ color: "#666" }}
+            />
+          </InputContainer>
+          <InputContainer>
+            <Label>신청 은행정보</Label>
+            <CustomInput
+              value={`${selectedOrder?.bankName} | ${selectedOrder?.username}`}
+              readOnly
+              style={{ color: "#666" }}
+            />
+            <CustomInput
+              value={selectedOrder?.accountNumber}
+              readOnly
+              style={{ color: "#666" }}
+            />
+          </InputContainer>
+          <InputContainer>
+            <Label>신청 모빅주소</Label>
+            <CustomInput
+              value={selectedOrder?.blockchainAddress}
+              readOnly
+              style={{ color: "#666" }}
+            />
+          </InputContainer>
+        </InputContainerBox>
         <SecondaryButton
-          text="돌아가기"
+          text="확인완료"
           onClick={() => {
             setShowDetailsModal(false);
             setNicknameInput("");
