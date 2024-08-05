@@ -1,8 +1,8 @@
 import axios from "axios";
 import { getCookie } from "cookies-next";
 
-// const BASE_URL = `https://port-0-choonsim-market-back-lyscrsym8c0a1309.sel4.cloudtype.app/`;
-const BASE_URL = "http://localhost:3500";
+const BASE_URL = `https://port-0-choonsim-market-back-lyscrsym8c0a1309.sel4.cloudtype.app/`;
+// const BASE_URL = "http://localhost:3500";
 
 const jwt = getCookie("jwt");
 
