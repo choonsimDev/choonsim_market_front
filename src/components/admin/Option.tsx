@@ -1,6 +1,9 @@
 import styled from "styled-components";
 import React, { useState } from "react";
 import { matchOrders, updateOrderStatus, processOrder } from "@/lib/apis/order";
+// trade 테이블을 불러오세요
+import { getAllTrades } from "@/lib/apis/trade";
+// 함수를 만들고, 구매자 그리고 판매자 아이디가(지금 ...프론트에 있는) 있는 것만 필터링 데이터를 가지고 오세요
 
 const OptionButtonContainer = styled.div`
   position: relative;
@@ -243,6 +246,13 @@ export interface DataItem {
   orderNumber: string; // 날짜 정보를 포함하는 필드 추가
 }
 
+export interface TradeItem {
+  amount: number;
+  buyOrderId: string;
+  sellOrderId: string;
+  createdAt: string;
+}
+
 interface OptionButtonProps {
   value: string;
   onChange: (value: string, status: number, processed?: boolean) => void;
@@ -268,8 +278,24 @@ const OptionButton: React.FC<OptionButtonProps> = ({
   const [popupData, setPopupData] = useState<DataItem | null>(null);
   const [cancellationReason, setCancellationReason] = useState("");
   const [matchAmount, setMatchAmount] = useState(0);
+  const [tradeData, setTradeData] = useState<[TradeItem] | null>(null);
+
+  const fetchTradeData = async () => {
+    try {
+      const response = await getAllTrades();
+      setTradeData(response.data);
+      console.log(
+        "Trade data fetched:",
+        response.data[response.data.length - 1]
+      );
+    } catch (error) {
+      console.error("Failed to fetch trade data:", error);
+    }
+  };
 
   const handleOptionClick = async (option: string) => {
+    await fetchTradeData();
+
     setShowOptions(false);
     if (option === "진행중") {
       setPopupData(item);
