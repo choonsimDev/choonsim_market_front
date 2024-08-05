@@ -124,7 +124,7 @@ const AdminData = () => {
       try {
         await validateToken(); // 토큰을 검증함
         const { data } = await getAllOrders(); // 모든 주문 데이터를 가져옴
-        console.log(data); // 가져온 데이터를 콘솔에 출력
+        // console.log(data); // 가져온 데이터를 콘솔에 출력
 
         const today = new Date(); // 현재 날짜를 가져옴
         const kstOffset = 9 * 60; // 한국 표준시(KST) 오프셋 정의
@@ -213,6 +213,7 @@ const AdminData = () => {
         setTotalBuyValue(totalBuyValue);
       } catch (error) {
         router.push("/admin"); // 에러가 발생하면 관리자 페이지로 리다이렉트
+        console.log(error); // 에러를 콘솔에 출력
       }
     };
 

@@ -36,6 +36,7 @@ export interface UpdateOrderStatusDto {
   status?: number;
   cancellationReason?: string; // only for status 3
   remainingAmount?: number; // only for status 1
+  matchedAmount?: number; // matchedAmount 속성 추가
 }
 
 export interface MatchOrderDto {

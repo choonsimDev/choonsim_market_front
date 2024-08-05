@@ -5,7 +5,8 @@ import {
   UpdateOrderStatusDto,
 } from "../types/order";
 
-const BASE_URL = `https://port-0-choonsim-market-back-lyscrsym8c0a1309.sel4.cloudtype.app/orders`;
+// const BASE_URL = `https://port-0-choonsim-market-back-lyscrsym8c0a1309.sel4.cloudtype.app/orders`;
+const BASE_URL = `http://localhost:3500/orders`;
 
 export const createOrder = async (orderData: CreateOrderDto) => {
   return axiosClient.post(`${BASE_URL}`, orderData);

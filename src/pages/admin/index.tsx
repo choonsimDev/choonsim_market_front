@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { useRouter } from 'next/router';
-import Sidebar from '@/components/admin/Sidebar';
-import { login, validateToken } from '@/lib/apis/auth';
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
+import { useRouter } from "next/router";
+import Sidebar from "@/components/admin/Sidebar";
+import { login, validateToken } from "@/lib/apis/auth";
 
 const Admin = () => {
-  const [code, setCode] = useState('');
-  const [message, setMessage] = useState('');
+  const [code, setCode] = useState("");
+  const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
@@ -16,15 +16,17 @@ const Admin = () => {
       try {
         await validateToken();
         setIsAuthenticated(true);
-        setMessage('환영합니다, 관리자님');
+        setMessage("환영합니다, 관리자님");
         setSuccess(true);
+        router.push("/admin/data"); // 인증되었을 때 데이터 페이지로 리디렉트
       } catch (error) {
         setIsAuthenticated(false);
+        setMessage("");
       }
     };
 
     checkAuthentication();
-  }, []);
+  }, [router]);
 
   const handleLogin = async () => {
     try {
@@ -32,7 +34,7 @@ const Admin = () => {
       setMessage(data.message);
       setSuccess(true);
       setIsAuthenticated(true);
-      router.push('/admin/data');
+      router.push("/admin/data");
     } catch (error) {
       console.log(error);
       setMessage("관리자 코드가 올바르지 않습니다.");
@@ -52,11 +54,11 @@ const Admin = () => {
         ) : (
           <InputArea>
             <Label>관리자 코드:</Label>
-            <Input 
-              type="text" 
-              placeholder="관리자 코드를 입력하세요" 
-              value={code} 
-              onChange={(e) => setCode(e.target.value)} 
+            <Input
+              type="text"
+              placeholder="관리자 코드를 입력하세요"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
             />
             <Button onClick={handleLogin}>로그인</Button>
             {message && <Message success={success}>{message}</Message>}
@@ -144,5 +146,5 @@ interface MessageProps {
 const Message = styled.p<MessageProps>`
   margin-top: 1rem;
   font-size: 1rem;
-  color: ${props => (props.success ? 'green' : 'red')};
+  color: ${(props) => (props.success ? "green" : "red")};
 `;
