@@ -1,9 +1,7 @@
 import styled from "styled-components";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { matchOrders, updateOrderStatus, processOrder } from "@/lib/apis/order";
-// trade 테이블을 불러오세요
 import { getAllTrades } from "@/lib/apis/trade";
-// 함수를 만들고, 구매자 그리고 판매자 아이디가(지금 ...프론트에 있는) 있는 것만 필터링 데이터를 가지고 오세요
 
 const OptionButtonContainer = styled.div`
   position: relative;
@@ -172,7 +170,7 @@ const CopyButton = styled.div`
   flex-direction: column;
   justify-content: center;
   flex-shrink: 0;
-  color: #757575;
+  color: blue;
   text-align: center;
   font-size: 18px;
   font-style: normal;
@@ -183,7 +181,7 @@ const CopyButton = styled.div`
   padding: 1rem 1.5rem 1rem 1.5rem;
   cursor: pointer;
   &:hover {
-    color: #000;
+    color: blue;
     text-decoration: underline;
   }
   &:active {
@@ -278,7 +276,8 @@ const OptionButton: React.FC<OptionButtonProps> = ({
   const [popupData, setPopupData] = useState<DataItem | null>(null);
   const [cancellationReason, setCancellationReason] = useState("");
   const [matchAmount, setMatchAmount] = useState(0);
-  const [tradeData, setTradeData] = useState<[TradeItem] | null>(null);
+  const [tradeData, setTradeData] = useState<TradeItem[] | null>(null);
+  const [latestAmount, setLatestAmount] = useState<number | null>(null);
 
   const fetchTradeData = async () => {
     try {
@@ -292,6 +291,23 @@ const OptionButton: React.FC<OptionButtonProps> = ({
       console.error("Failed to fetch trade data:", error);
     }
   };
+
+  useEffect(() => {
+    if (tradeData) {
+      const relevantTrades = tradeData.filter(
+        (trade) => trade.buyOrderId === item.id || trade.sellOrderId === item.id
+      );
+
+      if (relevantTrades.length > 0) {
+        const latestTrade = relevantTrades.reduce((latest, current) =>
+          new Date(latest.createdAt) > new Date(current.createdAt)
+            ? latest
+            : current
+        );
+        setLatestAmount(latestTrade.amount);
+      }
+    }
+  }, [tradeData, item.id]);
 
   const handleOptionClick = async (option: string) => {
     await fetchTradeData();
@@ -564,6 +580,8 @@ const OptionButton: React.FC<OptionButtonProps> = ({
             {popupData.type === "BUY" ? (
               <Popup>
                 <PopupTitle>입금을 완료하세요.</PopupTitle>
+                <PopupTextContainer />
+
                 <PopupTextContainer>
                   <PopupText>
                     구분 : <HighlightedBuy>구매자</HighlightedBuy>
@@ -583,6 +601,8 @@ const OptionButton: React.FC<OptionButtonProps> = ({
                     개
                   </PopupText>
                 </PopupTextContainer>
+                <PopupTextContainer />
+
                 <PopupTextContainer>
                   <AddressText>
                     주소 :{" "}
@@ -596,13 +616,21 @@ const OptionButton: React.FC<OptionButtonProps> = ({
                     입금액 :{" "}
                     <HighlightedBuy>
                       {" "}
-                      {popupData.amount - popupData.remainingAmount} Mo{" "}
+                      {latestAmount !== null
+                        ? `${latestAmount} Mo`
+                        : "N/A"}{" "}
                     </HighlightedBuy>
                   </PopupText>
                 </PopupTextContainer>
                 <PopupTextContainer>
                   <CopyButton
-                    onClick={() => handleCopy(popupData.blockchainAddress)}
+                    onClick={() =>
+                      handleCopy(
+                        `${popupData.blockchainAddress}, ${
+                          latestAmount !== null ? latestAmount : "N/A"
+                        }`
+                      )
+                    }
                   >
                     복사하기
                   </CopyButton>
@@ -616,48 +644,51 @@ const OptionButton: React.FC<OptionButtonProps> = ({
             ) : (
               <Popup>
                 <PopupTitle>입금을 완료하세요.</PopupTitle>
-
-                <PopupText>구분 : 판매자</PopupText>
-                <PopupText>신청자명 : {popupData.username}</PopupText>
-                <PopupText>
-                  신청 가격 : {popupData.price.toLocaleString()}원
-                </PopupText>
-                <PopupText>
-                  신청 수량 : {popupData.amount - popupData.remainingAmount} 개
-                </PopupText>
-                <PopupText>
-                  입금액 :{" "}
-                  <HighlightedBuy>
-                    {(
-                      popupData.price *
-                      (popupData.amount - popupData.remainingAmount)
-                    ).toLocaleString()}
-                    원
-                  </HighlightedBuy>
-                  <CopyButton
-                    onClick={() =>
-                      handleCopy(
-                        (
-                          popupData.price *
-                          (popupData.amount - popupData.remainingAmount)
-                        ).toString()
-                      )
-                    }
-                  >
-                    복사
-                  </CopyButton>
-                </PopupText>
-                <BankInfo>
-                  <SubText>은행명 : {popupData.bankName}</SubText>
-                  <SubText>
-                    계좌번호 : {popupData.accountNumber}{" "}
-                    <CopyButton
-                      onClick={() => handleCopy(popupData.accountNumber)}
-                    >
-                      복사
-                    </CopyButton>
-                  </SubText>
-                </BankInfo>
+                <PopupTextContainer />
+                <PopupTextContainer>
+                  <PopupText>
+                    구분 : <HighlightedSell>판매자</HighlightedSell>
+                  </PopupText>
+                </PopupTextContainer>{" "}
+                <PopupTextContainer>
+                  <PopupText>신청자명 : {popupData.username}</PopupText>
+                </PopupTextContainer>
+                <PopupTextContainer>
+                  <PopupText>
+                    신청 가격 : {popupData.price.toLocaleString()}원
+                  </PopupText>
+                  <PopupText>
+                    신청 수량 : {popupData.amount - popupData.remainingAmount}{" "}
+                    개
+                  </PopupText>
+                </PopupTextContainer>
+                <PopupTextContainer />
+                <PopupTextContainer>
+                  <PopupText>
+                    입금액 :{" "}
+                    <HighlightedSell>
+                      {(
+                        popupData.price *
+                        (popupData.amount - popupData.remainingAmount)
+                      ).toLocaleString()}
+                      원
+                    </HighlightedSell>
+                  </PopupText>
+                </PopupTextContainer>
+                <PopupTextContainer>
+                  <PopupText>은행명 : {popupData.bankName}</PopupText>
+                  <PopupText>입금자명 : {popupData.username}</PopupText>
+                </PopupTextContainer>
+                <PopupTextContainer>
+                  <PopupText>계좌번호 : {popupData.accountNumber} </PopupText>
+                </PopupTextContainer>
+                <PopupTextContainer>
+                  <PopupText>
+                    {`${(popupData.price / 10000).toLocaleString()}만, ${
+                      latestAmount !== null ? latestAmount : "N/A"
+                    }개`}
+                  </PopupText>{" "}
+                </PopupTextContainer>
                 <ButtonContainer>
                   <CloseButton onClick={handleCompletePayment}>
                     원화 입금 완료
