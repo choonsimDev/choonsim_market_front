@@ -1,5 +1,5 @@
-import styled from "styled-components";
 import React, { useState, useEffect } from "react";
+import styled from "styled-components";
 import { matchOrders, updateOrderStatus, processOrder } from "@/lib/apis/order";
 import { getAllTrades } from "@/lib/apis/trade";
 
@@ -101,6 +101,7 @@ const PopupText = styled.p`
   margin-top: 15px;
   margin-bottom: 15px;
 `;
+
 const AddressText = styled.p`
   display: flex;
   flex-direction: row;
@@ -114,6 +115,7 @@ const AddressText = styled.p`
   margin-top: 15px;
   margin-bottom: 15px;
 `;
+
 const PopupTextContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -226,6 +228,13 @@ const Textarea = styled.textarea`
   resize: none;
 `;
 
+const CopyText = styled(PopupText)`
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.75rem;
+  cursor: pointer;
+`;
+
 export interface DataItem {
   id: string;
   type: "BUY" | "SELL";
@@ -260,7 +269,22 @@ interface OptionButtonProps {
 
 const handleCopy = (text: string) => {
   navigator.clipboard.writeText(text);
-  alert("클립보드에 복사되었습니다.");
+  const notification = document.createElement("div");
+  notification.textContent = "복사되었습니다.";
+  notification.style.position = "fixed";
+  notification.style.bottom = "20px";
+  notification.style.left = "50%";
+  notification.style.transform = "translateX(-50%)";
+  notification.style.backgroundColor = "#333";
+  notification.style.color = "#fff";
+  notification.style.padding = "10px 20px";
+  notification.style.borderRadius = "5px";
+  notification.style.zIndex = "1000";
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    document.body.removeChild(notification);
+  }, 2000);
 };
 
 const OptionButton: React.FC<OptionButtonProps> = ({
@@ -664,30 +688,66 @@ const OptionButton: React.FC<OptionButtonProps> = ({
                 </PopupTextContainer>
                 <PopupTextContainer />
                 <PopupTextContainer>
-                  <PopupText>
+                  <CopyText
+                    onClick={() =>
+                      handleCopy(
+                        `${(
+                          popupData.price *
+                          (popupData.amount - popupData.remainingAmount)
+                        ).toLocaleString()}`
+                      )
+                    }
+                  >
                     입금액 :{" "}
-                    <HighlightedSell>
+                    <HighlightedSell style={{ textDecoration: "underline" }}>
                       {(
                         popupData.price *
                         (popupData.amount - popupData.remainingAmount)
                       ).toLocaleString()}
                       원
                     </HighlightedSell>
-                  </PopupText>
+                  </CopyText>
                 </PopupTextContainer>
                 <PopupTextContainer>
-                  <PopupText>은행명 : {popupData.bankName}</PopupText>
-                  <PopupText>입금자명 : {popupData.username}</PopupText>
+                  <CopyText onClick={() => handleCopy(popupData.bankName)}>
+                    은행명 :{" "}
+                    <HighlightedSell style={{ textDecoration: "underline" }}>
+                      {popupData.bankName}
+                    </HighlightedSell>
+                  </CopyText>
+                  <CopyText onClick={() => handleCopy(popupData.username)}>
+                    입금자명 :{" "}
+                    <HighlightedSell style={{ textDecoration: "underline" }}>
+                      {popupData.username}
+                    </HighlightedSell>
+                  </CopyText>
                 </PopupTextContainer>
                 <PopupTextContainer>
-                  <PopupText>계좌번호 : {popupData.accountNumber} </PopupText>
+                  <CopyText onClick={() => handleCopy(popupData.accountNumber)}>
+                    계좌번호 :{" "}
+                    <HighlightedSell style={{ textDecoration: "underline" }}>
+                      {popupData.accountNumber}
+                    </HighlightedSell>
+                  </CopyText>
                 </PopupTextContainer>
                 <PopupTextContainer>
-                  <PopupText>
-                    {`${(popupData.price / 10000).toLocaleString()}만, ${
-                      latestAmount !== null ? latestAmount : "N/A"
-                    }개`}
-                  </PopupText>{" "}
+                  <CopyText>
+                    메모 :
+                    <HighlightedSell
+                      style={{ textDecoration: "underline" }}
+                      onClick={() =>
+                        handleCopy(
+                          `${(popupData.price / 10000).toLocaleString()}만, ${
+                            latestAmount !== null ? latestAmount : "N/A"
+                          }개`
+                        )
+                      }
+                    >
+                      {`${(popupData.price / 10000).toLocaleString()}만, ${
+                        latestAmount !== null ? latestAmount : "N/A"
+                      }개`}
+                    </HighlightedSell>
+                  </CopyText>
                 </PopupTextContainer>
                 <ButtonContainer>
                   <CloseButton onClick={handleCompletePayment}>
