@@ -137,7 +137,7 @@ export const BuyFirstStepComponent: React.FC<BuyFirstStepComponentProps> = ({
     } else if (price < 1000000 && price % 2500 !== 0) {
       tempErrors = {
         ...tempErrors,
-        price: "가격은 100만원 이하일 시에 2,500원 단위로 입력해주세요.",
+        price: "가격은 2,500원 단위로 입력해주세요.",
       };
       isValid = false;
     } else if (price >= 1000000 && price % 5000 !== 0) {
@@ -245,7 +245,7 @@ export const BuyFirstStepComponent: React.FC<BuyFirstStepComponentProps> = ({
         {errors.phoneNumber && (
           <ErrorMessage>{errors.phoneNumber}</ErrorMessage>
         )}
-        <Label>희망 가격</Label>
+        <Label>희망 가격 (단위 : 2,500원)</Label>
         <Input
           name="price"
           value={price?.toLocaleString()}
