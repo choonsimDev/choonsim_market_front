@@ -16,9 +16,7 @@ const CreateOrderHeader: React.FC = () => {
   const router = useRouter();
   return (
     <HeaderContainer>
-      <div>
-        <Logo src="/svg/logo.svg" alt="Logo" />
-      </div>
+      <div></div>
       <div
         onClick={() => {
           router.push("/");

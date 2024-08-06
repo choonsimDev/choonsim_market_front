@@ -55,7 +55,7 @@ const AdminSetting = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await validateToken();
+        // await validateToken();
         const todayStatsData = await getTodayMatch();
         setTodayStats(todayStatsData.data);
         const tradesData = await getAllTrades();
@@ -97,7 +97,7 @@ const AdminSetting = () => {
       <Content>
         <Header>
           <Title>
-            신청 폼 
+            신청 폼
             <Switch isActive={switchStatus} onClick={handleToggleSwitch}>
               <SwitchCircle isActive={switchStatus}>
                 {switchStatus ? "✓" : "✕"}
@@ -107,7 +107,11 @@ const AdminSetting = () => {
           <InfoBox>
             <InfoColumn>
               <InfoTitle>오늘 평균가 :</InfoTitle>
-              <InfoValue>{todayStats.todayAvgPrice !== null ? `${Math.round(todayStats.todayAvgPrice)}원` : 'N/A'}</InfoValue>
+              <InfoValue>
+                {todayStats.todayAvgPrice !== null
+                  ? `${Math.round(todayStats.todayAvgPrice)}원`
+                  : "N/A"}
+              </InfoValue>
             </InfoColumn>
             <InfoColumn>
               <InfoTitle>오늘 최고가 :</InfoTitle>
@@ -124,8 +128,11 @@ const AdminSetting = () => {
             <InfoColumn>
               <InfoTitle>총 매칭 금액 :</InfoTitle>
               <InfoValue>
-                {todayStats.totalMatchAmount !== null && todayStats.todayAvgPrice !== null
-                  ? `${todayStats.totalMatchAmount * todayStats.todayAvgPrice}원`
+                {todayStats.totalMatchAmount !== null &&
+                todayStats.todayAvgPrice !== null
+                  ? `${
+                      todayStats.totalMatchAmount * todayStats.todayAvgPrice
+                    }원`
                   : "N/A"}
               </InfoValue>
             </InfoColumn>
