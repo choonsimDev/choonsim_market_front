@@ -122,7 +122,7 @@ const AdminData = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await validateToken(); // 토큰을 검증함
+        // await validateToken(); // 토큰을 검증함
         const { data } = await getAllOrders(); // 모든 주문 데이터를 가져옴
         // console.log(data); // 가져온 데이터를 콘솔에 출력
 
@@ -223,7 +223,7 @@ const AdminData = () => {
   useEffect(() => {
     const fetchPendingOrders = async () => {
       try {
-        await validateToken(); // 토큰을 검증
+        // await validateToken(); // 토큰을 검증
         const { data } = await getAllOrders(); // 모든 주문 데이터를 가져옴
 
         const today = new Date(); // 현재 날짜를 가져옴
