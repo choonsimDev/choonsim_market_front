@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { matchOrders, updateOrderStatus, processOrder } from "@/lib/apis/order";
 import { getAllTrades } from "@/lib/apis/trade";
+import { set } from "date-fns";
 
 const OptionButtonContainer = styled.div`
   position: relative;
@@ -229,6 +230,7 @@ const Textarea = styled.textarea`
 `;
 
 const CopyText = styled(PopupText)`
+  width: 100%;
   font-size: 1.25rem;
   font-weight: 600;
   line-height: 1.75rem;
@@ -304,6 +306,8 @@ const OptionButton: React.FC<OptionButtonProps> = ({
   const [matchAmount, setMatchAmount] = useState(0);
   const [tradeData, setTradeData] = useState<TradeItem[] | null>(null);
   const [latestAmount, setLatestAmount] = useState<number | null>(null);
+  const [buyNickname, setBuyNickname] = useState<string | null>(null); // 추가된 부분
+  const [sellNickname, setSellNickname] = useState<string | null>(null); // 추가된 부분
 
   const fetchTradeData = async () => {
     try {
@@ -331,6 +335,11 @@ const OptionButton: React.FC<OptionButtonProps> = ({
             : current
         );
         setLatestAmount(latestTrade.amount);
+        // 판매자의 닉네임을 설정합니다.
+        if (item.type === "BUY") {
+          setSellNickname(latestTrade.sellNickname);
+          setBuyNickname(latestTrade.buyNickname);
+        }
       }
     }
   }, [tradeData, item.id]);
@@ -598,13 +607,13 @@ const OptionButton: React.FC<OptionButtonProps> = ({
                       onClick={() =>
                         handleCopy(
                           `${popupData.username} / ${(popupData.price / 10000)
-                            .toFixed(1)
+                            .toFixed(2)
                             .toLocaleString()}만원 / ${popupData.amount}개`
                         )
                       }
                     >
                       {popupData.username} /{" "}
-                      {(popupData.price / 10000).toFixed(1).toLocaleString()}
+                      {(popupData.price / 10000).toFixed(2).toLocaleString()}
                       만원 / {popupData.amount} 개
                     </HighlightedSell>
                   </PopupText>
@@ -684,6 +693,42 @@ const OptionButton: React.FC<OptionButtonProps> = ({
                   </CopyButton>
                 </PopupTextContainer>
                 {/* <PopupTextContainer>[DataItem의 username]과, [DataItem의 id와 일치하는 TradeItem의 sellOrderId]가 있는 경우, 해당 TradeItem의 sellNickName을 불러오고싶</PopupTextContainer> */}
+                <PopupTextContainer>
+                  <CopyText
+                    onClick={() =>
+                      //아래 내용 복사하기
+                      handleCopy(
+                        `구매자 : ${
+                          buyNickname ? buyNickname : "loading"
+                        } | 판매자 : ${
+                          sellNickname ? sellNickname : "loading"
+                        } | ${
+                          latestAmount !== null ? latestAmount : "N/A"
+                        } Mo | ${popupData.price.toLocaleString()}원`
+                      )
+                    }
+                    style={{
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                      color: "blue",
+                    }}
+                  >
+                    {" "}
+                    {buyNickname ? (
+                      <span>구매자 : {buyNickname}</span>
+                    ) : (
+                      <span>loading</span>
+                    )}{" "}
+                    |{" "}
+                    {sellNickname ? (
+                      <span>판매자 : {sellNickname}</span>
+                    ) : (
+                      <span>loading</span>
+                    )}
+                    | {latestAmount !== null ? `${latestAmount} Mo` : "N/A"} |{" "}
+                    {popupData.price.toLocaleString()}원
+                  </CopyText>
+                </PopupTextContainer>
                 <ButtonContainer>
                   <CloseButton onClick={handleConfirmProcessing}>
                     모빅 전송 완료
@@ -762,13 +807,17 @@ const OptionButton: React.FC<OptionButtonProps> = ({
                       style={{ textDecoration: "underline" }}
                       onClick={() =>
                         handleCopy(
-                          `${(popupData.price / 10000).toLocaleString()}만, ${
+                          `${(popupData.price / 10000)
+                            .toFixed(2)
+                            .toLocaleString()}만, ${
                             latestAmount !== null ? latestAmount : "N/A"
                           }개`
                         )
                       }
                     >
-                      {`${(popupData.price / 10000).toLocaleString()}만, ${
+                      {`${(popupData.price / 10000)
+                        .toFixed(2)
+                        .toLocaleString()}만, ${
                         latestAmount !== null ? latestAmount : "N/A"
                       }개`}
                     </HighlightedSell>

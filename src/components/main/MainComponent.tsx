@@ -51,26 +51,35 @@ const OrderSellButton = styled.button`
 
 export const MainComponent = () => {
   const router = useRouter();
-  const [isAfterThree, setIsAfterThree] = useState(false);
+  const [isWithinTime, setIsWithinTime] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    const now = new Date();
-    const offset = now.getTimezoneOffset() * 60000;
-    const kstTime = new Date(now.getTime() + offset + 9 * 60 * 60 * 1000);
+    const checkTime = () => {
+      const now = new Date();
+      const offset = now.getTimezoneOffset() * 60000;
+      const kstTime = new Date(now.getTime() + offset + 9 * 60 * 60 * 1000);
 
-    if (kstTime.getHours() >= 15) {
-      setIsAfterThree(true);
-    }
+      const hours = kstTime.getHours();
+      if (hours >= 9 && hours < 15) {
+        setIsWithinTime(true);
+      } else {
+        setIsWithinTime(false);
+      }
+    };
+
+    checkTime();
+    const intervalId = setInterval(checkTime, 60000); // Check every minute
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleClick = (path: string) => {
-    // if (isAfterThree) {
-    //   setIsModalOpen(true);
-    // } else {
-    //   router.push(path);
-    // }
-    router.push(path);
+    if (isWithinTime) {
+      router.push(path);
+    } else {
+      setIsModalOpen(true);
+    }
   };
 
   const closeModal = () => {
