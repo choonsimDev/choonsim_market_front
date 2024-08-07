@@ -258,6 +258,8 @@ export interface TradeItem {
   buyOrderId: string;
   sellOrderId: string;
   createdAt: string;
+  buyNickname: string;
+  sellNickname: string;
 }
 
 interface OptionButtonProps {
@@ -586,6 +588,26 @@ const OptionButton: React.FC<OptionButtonProps> = ({
                       {popupData.amount} 개
                     </HighlightedSell>
                   </PopupText>
+                  <div>|</div>
+                  <PopupText>
+                    <HighlightedSell
+                      style={{
+                        color: "blue",
+                        textDecoration: "underline",
+                      }}
+                      onClick={() =>
+                        handleCopy(
+                          `${popupData.username} / ${(popupData.price / 10000)
+                            .toFixed(1)
+                            .toLocaleString()}만원 / ${popupData.amount}개`
+                        )
+                      }
+                    >
+                      {popupData.username} /{" "}
+                      {(popupData.price / 10000).toFixed(1).toLocaleString()}
+                      만원 / {popupData.amount} 개
+                    </HighlightedSell>
+                  </PopupText>
                 </PopupTextContainer>
                 <ButtonContainer>
                   <CloseButton onClick={handleConfirmClick}>
@@ -605,7 +627,6 @@ const OptionButton: React.FC<OptionButtonProps> = ({
               <Popup>
                 <PopupTitle>입금을 완료하세요.</PopupTitle>
                 <PopupTextContainer />
-
                 <PopupTextContainer>
                   <PopupText>
                     구분 : <HighlightedBuy>구매자</HighlightedBuy>
@@ -626,7 +647,6 @@ const OptionButton: React.FC<OptionButtonProps> = ({
                   </PopupText>
                 </PopupTextContainer>
                 <PopupTextContainer />
-
                 <PopupTextContainer>
                   <AddressText>
                     주소 :{" "}
@@ -646,7 +666,11 @@ const OptionButton: React.FC<OptionButtonProps> = ({
                     </HighlightedBuy>
                   </PopupText>
                 </PopupTextContainer>
+
                 <PopupTextContainer>
+                  <PopupText>
+                    {popupData.blockchainAddress}, {popupData.amount} 개
+                  </PopupText>{" "}
                   <CopyButton
                     onClick={() =>
                       handleCopy(
@@ -659,6 +683,7 @@ const OptionButton: React.FC<OptionButtonProps> = ({
                     복사하기
                   </CopyButton>
                 </PopupTextContainer>
+                {/* <PopupTextContainer>[DataItem의 username]과, [DataItem의 id와 일치하는 TradeItem의 sellOrderId]가 있는 경우, 해당 TradeItem의 sellNickName을 불러오고싶</PopupTextContainer> */}
                 <ButtonContainer>
                   <CloseButton onClick={handleConfirmProcessing}>
                     모빅 전송 완료

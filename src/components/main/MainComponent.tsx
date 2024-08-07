@@ -65,11 +65,12 @@ export const MainComponent = () => {
   }, []);
 
   const handleClick = (path: string) => {
-    if (isAfterThree) {
-      setIsModalOpen(true);
-    } else {
-      router.push(path);
-    }
+    // if (isAfterThree) {
+    //   setIsModalOpen(true);
+    // } else {
+    //   router.push(path);
+    // }
+    router.push(path);
   };
 
   const closeModal = () => {
