@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = `http://localhost:3500/trades`;
-// const BASE_URL = `https://port-0-choonsim-market-back-lyscrsym8c0a1309.sel4.cloudtype.app/trades`;
+// const BASE_URL = `http://localhost:3500/trades`;
+const BASE_URL = `https://port-0-choonsim-market-back-lyscrsym8c0a1309.sel4.cloudtype.app/trades`;
 
 export const getAllTrades = async () => {
   return axios.get(`${BASE_URL}`);
