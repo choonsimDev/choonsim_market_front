@@ -323,7 +323,7 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
                 }
                 isCopied={copiedId === item.id && copiedField === "amount"}
               >
-                {item.amount}
+                {item.amount.toFixed(2)}
               </DataColumn>
               <DataColumn
                 style={{ width: columnWidths[6] }}
@@ -338,7 +338,7 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
                   copiedId === item.id && copiedField === "remainingAmount"
                 }
               >
-                {item.remainingAmount}
+                {item.remainingAmount.toFixed(2)}
               </DataColumn>
 
               <DataColumn
