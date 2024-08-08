@@ -113,7 +113,9 @@ const OrderTable: React.FC = () => {
 
       const aggregatedData = filteredData.reduce(
         (acc: AggregatedOrder[], order: Order) => {
-          const existing = acc.find((o) => o.price === order.price);
+          const existing = acc.find(
+            (o: AggregatedOrder) => o.price === order.price
+          );
           if (existing) {
             if (order.type === OrderType.BUY) {
               existing.buyAmount += order.remainingAmount;
@@ -138,9 +140,15 @@ const OrderTable: React.FC = () => {
         (order: AggregatedOrder) => order.buyAmount > 0 || order.sellAmount > 0
       );
 
-      const sortedData = validAggregatedData.sort(
-        (a: AggregatedOrder, b: AggregatedOrder) => b.price - a.price
-      );
+      // Separate buys and sells and sort them accordingly
+      const buys = validAggregatedData
+        .filter((order: AggregatedOrder) => order.buyAmount > 0)
+        .sort((a: AggregatedOrder, b: AggregatedOrder) => b.price - a.price);
+      const sells = validAggregatedData
+        .filter((order: AggregatedOrder) => order.sellAmount > 0)
+        .sort((a: AggregatedOrder, b: AggregatedOrder) => b.price - a.price);
+
+      const sortedData = [...sells, ...buys];
 
       setAggregatedOrders(sortedData);
     };
@@ -152,58 +160,37 @@ const OrderTable: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    aggregatedOrders.forEach((order: AggregatedOrder) => {
-      if (
-        order.buyAmount !== previousRemainingAmounts[order.price] ||
-        order.sellAmount !== previousRemainingAmounts[order.price]
-      ) {
-        scrollToPrice(order.price);
-      }
-    });
-    setPreviousRemainingAmounts(
-      aggregatedOrders.reduce((acc, order) => {
-        acc[order.price] = order.buyAmount + order.sellAmount;
-        return acc;
-      }, {} as { [key: string]: number })
-    );
-  }, [aggregatedOrders]);
+    const highestBuyOrder = aggregatedOrders
+      .filter((order: AggregatedOrder) => order.buyAmount > 0)
+      .sort((a: AggregatedOrder, b: AggregatedOrder) => b.price - a.price)[0];
+    const lowestSellOrder = aggregatedOrders
+      .filter((order: AggregatedOrder) => order.sellAmount > 0)
+      .sort((a: AggregatedOrder, b: AggregatedOrder) => a.price - b.price)[0];
 
-  const scrollToPrice = (price: number) => {
-    if (tableBodyRef.current) {
-      const rows = Array.from(
-        tableBodyRef.current.children
-      ) as HTMLDivElement[];
-      let targetRow = rows.find((row) => {
-        const cell = row.children[1] as HTMLDivElement;
-        return cell && parseFloat(cell.innerText.replace(/,/g, "")) === price;
-      });
+    if (highestBuyOrder && lowestSellOrder) {
+      const highestBuyPrice = highestBuyOrder.price;
+      const lowestSellPrice = lowestSellOrder.price;
+      const midPrice = (highestBuyPrice + lowestSellPrice) / 2;
 
-      if (!targetRow) {
-        const prices = rows.map((row) => {
+      if (tableBodyRef.current) {
+        const rows = tableBodyRef.current.children;
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
           const cell = row.children[1] as HTMLDivElement;
-          return parseFloat(cell.innerText.replace(/,/g, ""));
-        });
-        const closestPrice = prices.reduce((prev, curr) =>
-          Math.abs(curr - price) < Math.abs(prev - price) ? curr : prev
-        );
-        targetRow = rows.find((row) => {
-          const cell = row.children[1] as HTMLDivElement;
-          return (
+          if (
             cell &&
-            parseFloat(cell.innerText.replace(/,/g, "")) === closestPrice
-          );
-        });
-      }
-
-      if (targetRow) {
-        const targetPosition =
-          targetRow.offsetTop -
-          tableBodyRef.current.clientHeight / 2 +
-          targetRow.clientHeight / 2;
-        tableBodyRef.current.scrollTop = targetPosition;
+            parseFloat(cell.innerText.replace(/,/g, "")) <= midPrice
+          ) {
+            tableBodyRef.current.scrollTop =
+              row.clientHeight * i -
+              tableBodyRef.current.clientHeight / 2 +
+              row.clientHeight / 2;
+            break;
+          }
+        }
       }
     }
-  };
+  }, [aggregatedOrders]);
 
   return (
     <TableContainer>
@@ -216,7 +203,7 @@ const OrderTable: React.FC = () => {
           </TableHeader>
         </TableHead>
         <TableBody ref={tableBodyRef}>
-          {aggregatedOrders.map((order) => (
+          {aggregatedOrders.map((order: AggregatedOrder) => (
             <TableRow key={order.price}>
               <TableCell
                 $isBuy
@@ -244,9 +231,9 @@ const OrderTable: React.FC = () => {
           ))}
           {orders
             .filter(
-              (order) =>
+              (order: Order) =>
                 !aggregatedOrders.some(
-                  (aggOrder) => aggOrder.price === order.price
+                  (aggOrder: AggregatedOrder) => aggOrder.price === order.price
                 )
             )
             .map((order: Order) => (
