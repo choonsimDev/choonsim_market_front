@@ -1,7 +1,7 @@
 import axiosClient from "../axiosClient";
 
-// const BASE_URL = `http://localhost:3500/switch`;
-const BASE_URL = `https://port-0-choonsim-market-back-lyscrsym8c0a1309.sel4.cloudtype.app/switch`;
+const BASE_URL = `http://localhost:3500/switch`;
+// const BASE_URL = `https://port-0-choonsim-market-back-lyscrsym8c0a1309.sel4.cloudtype.app/switch`;
 
 export const getSwitches = async () => {
   return axiosClient.get(`${BASE_URL}`);

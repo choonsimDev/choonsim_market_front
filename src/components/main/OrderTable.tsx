@@ -10,6 +10,12 @@ interface TableProps {
   $isLast?: boolean;
 }
 
+interface AggregatedOrder {
+  price: number;
+  buyAmount: number;
+  sellAmount: number;
+}
+
 const TableContainer = styled.div`
   width: 100%;
   margin: 10px 0;
@@ -28,7 +34,7 @@ const TableBlock = styled.div`
   padding-top: 1.125rem;
   padding-bottom: 1.125rem;
   font-weight: bold;
-  flex-grow: 1; /* Allow it to grow to take up available space */
+  flex-grow: 1;
 `;
 
 const TableHead = styled.div`
@@ -73,6 +79,9 @@ const TableCell = styled.div<TableProps>`
 const OrderTable: React.FC = () => {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [aggregatedOrders, setAggregatedOrders] = useState<AggregatedOrder[]>(
+    []
+  );
   const [previousRemainingAmounts, setPreviousRemainingAmounts] = useState<{
     [key: string]: number;
   }>({});
@@ -80,28 +89,10 @@ const OrderTable: React.FC = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      // 상태 1과 상태 2의 주문을 각각 가져옵니다.
       const { data: dataStatus1 } = await getOrdersByStatus(1);
       const { data: dataStatus2 } = await getOrdersByStatus(2);
 
-      // 상태 1과 상태 2의 데이터를 병합합니다.
       const combinedData = [...dataStatus1, ...dataStatus2];
-
-      const sortedData = combinedData.sort(
-        (a: any, b: any) => b.price - a.price
-      );
-
-      const aggregatedData = sortedData.reduce((acc: any, order: any) => {
-        const existing = acc.find(
-          (o: any) => o.price === order.price && o.type === order.type
-        );
-        if (existing) {
-          existing.remainingAmount += order.remainingAmount;
-        } else {
-          acc.push({ ...order });
-        }
-        return acc;
-      }, []);
 
       // Filter the orders to only include those with today's date (KST)
       const today = new Date();
@@ -111,7 +102,7 @@ const OrderTable: React.FC = () => {
       );
 
       const todayDateString = today.toISOString().split("T")[0];
-      const filteredData = aggregatedData.filter((order: Order) => {
+      const filteredData = combinedData.filter((order: Order) => {
         const orderDate = new Date(order.createdAt);
         orderDate.setMinutes(
           orderDate.getMinutes() + orderDate.getTimezoneOffset() + kstOffset
@@ -120,7 +111,38 @@ const OrderTable: React.FC = () => {
         return orderDateString === todayDateString;
       });
 
-      setOrders(filteredData);
+      const aggregatedData = filteredData.reduce(
+        (acc: AggregatedOrder[], order: Order) => {
+          const existing = acc.find((o) => o.price === order.price);
+          if (existing) {
+            if (order.type === OrderType.BUY) {
+              existing.buyAmount += order.remainingAmount;
+            } else if (order.type === OrderType.SELL) {
+              existing.sellAmount += order.remainingAmount;
+            }
+          } else {
+            acc.push({
+              price: order.price,
+              buyAmount:
+                order.type === OrderType.BUY ? order.remainingAmount : 0,
+              sellAmount:
+                order.type === OrderType.SELL ? order.remainingAmount : 0,
+            });
+          }
+          return acc;
+        },
+        []
+      );
+
+      const validAggregatedData = aggregatedData.filter(
+        (order: AggregatedOrder) => order.buyAmount > 0 || order.sellAmount > 0
+      );
+
+      const sortedData = validAggregatedData.sort(
+        (a: AggregatedOrder, b: AggregatedOrder) => b.price - a.price
+      );
+
+      setAggregatedOrders(sortedData);
     };
 
     fetchOrders();
@@ -130,32 +152,55 @@ const OrderTable: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    orders.forEach((order) => {
-      if (order.remainingAmount !== previousRemainingAmounts[order.id]) {
+    aggregatedOrders.forEach((order: AggregatedOrder) => {
+      if (
+        order.buyAmount !== previousRemainingAmounts[order.price] ||
+        order.sellAmount !== previousRemainingAmounts[order.price]
+      ) {
         scrollToPrice(order.price);
       }
     });
     setPreviousRemainingAmounts(
-      orders.reduce((acc, order) => {
-        acc[order.id] = order.remainingAmount;
+      aggregatedOrders.reduce((acc, order) => {
+        acc[order.price] = order.buyAmount + order.sellAmount;
         return acc;
       }, {} as { [key: string]: number })
     );
-  }, [orders]);
+  }, [aggregatedOrders]);
 
   const scrollToPrice = (price: number) => {
     if (tableBodyRef.current) {
-      const rows = tableBodyRef.current.children;
-      for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        const cell = row.children[1] as HTMLDivElement; // Assume price is in the second cell
-        if (cell && parseFloat(cell.innerText.replace(/,/g, "")) === price) {
-          tableBodyRef.current.scrollTop =
-            row.clientHeight * i -
-            tableBodyRef.current.clientHeight / 2 +
-            row.clientHeight / 2;
-          break;
-        }
+      const rows = Array.from(
+        tableBodyRef.current.children
+      ) as HTMLDivElement[];
+      let targetRow = rows.find((row) => {
+        const cell = row.children[1] as HTMLDivElement;
+        return cell && parseFloat(cell.innerText.replace(/,/g, "")) === price;
+      });
+
+      if (!targetRow) {
+        const prices = rows.map((row) => {
+          const cell = row.children[1] as HTMLDivElement;
+          return parseFloat(cell.innerText.replace(/,/g, ""));
+        });
+        const closestPrice = prices.reduce((prev, curr) =>
+          Math.abs(curr - price) < Math.abs(prev - price) ? curr : prev
+        );
+        targetRow = rows.find((row) => {
+          const cell = row.children[1] as HTMLDivElement;
+          return (
+            cell &&
+            parseFloat(cell.innerText.replace(/,/g, "")) === closestPrice
+          );
+        });
+      }
+
+      if (targetRow) {
+        const targetPosition =
+          targetRow.offsetTop -
+          tableBodyRef.current.clientHeight / 2 +
+          targetRow.clientHeight / 2;
+        tableBodyRef.current.scrollTop = targetPosition;
       }
     }
   };
@@ -166,41 +211,82 @@ const OrderTable: React.FC = () => {
         <TableHead>
           <TableHeader $isBuy>구매</TableHeader>
           <TableHeader>가격</TableHeader>
-          <TableHeader $isSell={true} $isLast={true}>
+          <TableHeader $isSell $isLast>
             판매
           </TableHeader>
         </TableHead>
         <TableBody ref={tableBodyRef}>
-          {orders.map((order) => (
-            <TableRow key={order.id}>
+          {aggregatedOrders.map((order) => (
+            <TableRow key={order.price}>
               <TableCell
-                $isBuy={order.type === OrderType.BUY}
-                onClick={
-                  order.type === OrderType.BUY
-                    ? () => {
-                        router.push(`/create-order/buy?price=${order.price}`);
-                      }
-                    : undefined
-                }
+                $isBuy
+                onClick={() => {
+                  router.push(
+                    `/create-order/buy?price=${order.price.toFixed(2)}`
+                  );
+                }}
               >
-                {order.type === OrderType.BUY ? order.remainingAmount : "-"}
+                {order.buyAmount > 0 ? order.buyAmount.toFixed(2) : "-"}
               </TableCell>
               <TableCell>{order.price.toLocaleString()}</TableCell>
               <TableCell
-                $isSell={order.type === OrderType.SELL}
-                $isLast={true}
-                onClick={
-                  order.type === OrderType.SELL
-                    ? () => {
-                        router.push(`/create-order/sell?price=${order.price}`);
-                      }
-                    : undefined
-                }
+                $isSell
+                $isLast
+                onClick={() => {
+                  router.push(
+                    `/create-order/sell?price=${order.price.toFixed(2)}`
+                  );
+                }}
               >
-                {order.type === OrderType.SELL ? order.remainingAmount : "-"}
+                {order.sellAmount > 0 ? order.sellAmount.toFixed(2) : "-"}
               </TableCell>
             </TableRow>
           ))}
+          {orders
+            .filter(
+              (order) =>
+                !aggregatedOrders.some(
+                  (aggOrder) => aggOrder.price === order.price
+                )
+            )
+            .map((order: Order) => (
+              <TableRow key={order.id}>
+                <TableCell
+                  $isBuy={order.type === OrderType.BUY}
+                  onClick={
+                    order.type === OrderType.BUY
+                      ? () => {
+                          router.push(
+                            `/create-order/buy?price=${order.price.toFixed(2)}`
+                          );
+                        }
+                      : undefined
+                  }
+                >
+                  {order.type === OrderType.BUY
+                    ? order.remainingAmount.toFixed(2)
+                    : "-"}
+                </TableCell>
+                <TableCell>{order.price.toLocaleString()}</TableCell>
+                <TableCell
+                  $isSell={order.type === OrderType.SELL}
+                  $isLast={true}
+                  onClick={
+                    order.type === OrderType.SELL
+                      ? () => {
+                          router.push(
+                            `/create-order/sell?price=${order.price.toFixed(2)}`
+                          );
+                        }
+                      : undefined
+                  }
+                >
+                  {order.type === OrderType.SELL
+                    ? order.remainingAmount.toFixed(2)
+                    : "-"}
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </TableBlock>
     </TableContainer>

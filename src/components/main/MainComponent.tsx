@@ -75,11 +75,12 @@ export const MainComponent = () => {
   }, []);
 
   const handleClick = (path: string) => {
-    if (isWithinTime) {
-      router.push(path);
-    } else {
-      setIsModalOpen(true);
-    }
+    // if (isWithinTime) {
+    //   router.push(path);
+    // } else {
+    //   setIsModalOpen(true);
+    // }
+    router.push(path);
   };
 
   const closeModal = () => {

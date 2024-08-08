@@ -262,6 +262,7 @@ export interface TradeItem {
   createdAt: string;
   buyNickname: string;
   sellNickname: string;
+  price: number;
 }
 
 interface OptionButtonProps {
