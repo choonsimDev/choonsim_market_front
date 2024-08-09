@@ -1,5 +1,5 @@
-import { useRouter } from 'next/router';
-import styled from 'styled-components';
+import { useRouter } from "next/router";
+import styled from "styled-components";
 
 const Sidebar = () => {
   const router = useRouter();
@@ -7,15 +7,24 @@ const Sidebar = () => {
 
   return (
     <Container>
-      <ActiveContent active={pathname === '/admin'} onClick={() => router.push('/admin')}>
+      <ActiveContent
+        active={pathname === "/admin"}
+        onClick={() => router.push("/admin")}
+      >
         Dashboard
       </ActiveContent>
-      <ActiveContent active={pathname === '/admin/data'} onClick={() => router.push('/admin/data')}>
+      {/* <ActiveContent
+        active={pathname === "/admin/data"}
+        onClick={() => router.push("/admin/data")}
+      >
         신청 현황
       </ActiveContent>
-      <ActiveContent active={pathname === '/admin/setting'} onClick={() => router.push('/admin/setting')}>
+      <ActiveContent
+        active={pathname === "/admin/setting"}
+        onClick={() => router.push("/admin/setting")}
+      >
         설정 관리
-      </ActiveContent>
+      </ActiveContent> */}
     </Container>
   );
 };
@@ -56,6 +65,5 @@ const Content = styled.div`
 `;
 
 const ActiveContent = styled(Content)<ContentProps>`
-  color: ${props => (props.active ? '#0038FF' : '#000')};
+  color: ${(props) => (props.active ? "#0038FF" : "#000")};
 `;
-
