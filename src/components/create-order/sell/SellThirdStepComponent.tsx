@@ -85,6 +85,23 @@ const BlockchainAddressContainer = styled.div`
   display: inline-block;
 `;
 
+const BlockchainAddressImage = styled.img`
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
+  display: block;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    max-width: 250px;
+  }
+`;
+
 const BlockchainAddressText = styled.div`
   color: #0078ff;
   font-weight: bold;
@@ -144,7 +161,7 @@ export const SellThirdStepComponent: React.FC<SellThirdStepComponentProps> = ({
         <Description>춘심 심부름 센터 공개주소</Description>
 
         <BlockchainAddressContainer>
-          <img src="/svg/qr.svg" alt="qr 코드" />
+          <BlockchainAddressImage src="/svg/qr.svg" alt="qr 코드" />
           <BlockchainAddressText onClick={copyAddressToClipboard}>
             33zDCJtg8ugTnmSDdKTLivxBrcuJwAo8cB
           </BlockchainAddressText>

@@ -270,14 +270,12 @@ function formatStatus(status: number) {
   }
 }
 
-function getTodayDate() {
+// KST 시간으로 오늘 날짜를 필터링하는 함수
+function getTodayDateKST() {
   const today = new Date();
-  const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const date = String(today.getDate()).padStart(2, "0");
-  const day = dayNames[today.getDay()];
-  return `${year}-${month}-${date}(${day})`;
+  const kstOffset = 9 * 60; // KST는 UTC보다 9시간 앞서 있습니다.
+  today.setMinutes(today.getMinutes() + today.getTimezoneOffset() + kstOffset);
+  return today;
 }
 
 interface TodayOrder {
@@ -294,6 +292,7 @@ interface TodayOrder {
   blockchainAddress: string;
   bankName: string;
   username: string;
+  createdAt: string;
 }
 
 const TodayOrderTable: React.FC = () => {
@@ -309,7 +308,20 @@ const TodayOrderTable: React.FC = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       const { data } = await getTodayOrders();
-      const sortedData = data.sort(
+
+      const todayKST = getTodayDateKST(); // KST 기준으로 오늘 날짜 계산
+      const todayDateString = todayKST.toISOString().split("T")[0]; // 오늘 날짜를 문자열로 변환
+
+      const filteredData = data.filter((order: TodayOrder) => {
+        const orderDate = new Date(order.createdAt);
+        orderDate.setMinutes(
+          orderDate.getMinutes() + orderDate.getTimezoneOffset() + 9 * 60
+        );
+        const orderDateString = orderDate.toISOString().split("T")[0];
+        return orderDateString === todayDateString;
+      });
+
+      const sortedData = filteredData.sort(
         (a: TodayOrder, b: TodayOrder) => b.orderNumber - a.orderNumber
       );
       setOrders(sortedData);
@@ -418,7 +430,9 @@ const TodayOrderTable: React.FC = () => {
       </FilterContainer>
       <TableBlock>
         <DateHeaderBlock>
-          <DateHeader>접수기준 {getTodayDate()}</DateHeader>
+          <DateHeader>
+            접수기준 {getTodayDateKST().toISOString().split("T")[0]}
+          </DateHeader>
         </DateHeaderBlock>
         <TableHead>
           <TableHeader>접수 번호</TableHeader>

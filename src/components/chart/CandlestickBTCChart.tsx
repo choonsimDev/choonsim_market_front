@@ -83,6 +83,7 @@ interface MobickData {
   openPrice: number;
   highPrice: number;
   lowPrice: number;
+  averagePrice: number;
   closePrice: number;
   totalPrice: number;
 }
@@ -115,13 +116,15 @@ const CandlestickBTCChart: React.FC = () => {
   const [maxRatio, setMaxRatio] = useState(0);
   const [timeframe, setTimeframe] = useState("daily");
   const [originalData, setOriginalData] = useState<CombinedData[]>([]);
-  const [showDropdown, setShowDropdown] = useState(false); // 추가된 부분
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     const run = async () => {
       try {
         const { data: mobickData } = await getDailyTradeStats();
         const btcData: BTCData[] = await getBTCPriceData();
+        console.log("Mobick Data:", mobickData); // 데이터를 확인하기 위해 콘솔 출력
+        console.log("BTC Data:", btcData);
 
         const btcDataMap = btcData.reduce<Record<string, BTCData>>(
           (acc, btc) => {
@@ -135,7 +138,7 @@ const CandlestickBTCChart: React.FC = () => {
           .filter((stat: MobickData) => btcDataMap[stat.date])
           .map((stat: MobickData) => {
             const btc = btcDataMap[stat.date];
-            const mobickAveragePrice = (stat.openPrice + stat.closePrice) / 2;
+            const mobickAveragePrice = stat.averagePrice;
             const btcPrice = (btc.openPrice + btc.closePrice) / 2;
             const ratio = mobickAveragePrice / btcPrice;
             return {
@@ -147,7 +150,7 @@ const CandlestickBTCChart: React.FC = () => {
             };
           });
 
-        setOriginalData(combinedData); // Save the original data
+        setOriginalData(combinedData);
         updateChart("daily", combinedData);
       } catch (error) {
         console.error("Error loading data:", error);
@@ -212,7 +215,7 @@ const CandlestickBTCChart: React.FC = () => {
     setMinRatio(adjustedMinRatio);
     setMaxRatio(adjustedMaxRatio);
     setSeries([{ name: "MOBICK/BTC", type: "line", data: ratioData }]);
-    setCombinedData(filteredData); // Save the filtered data for tooltip
+    setCombinedData(filteredData);
     setTimeframe(timeframe);
   };
 
@@ -240,11 +243,38 @@ const CandlestickBTCChart: React.FC = () => {
           download: false,
         },
       },
+      events: {
+        zoomed: function (chartContext, { xaxis }) {
+          const maxDate = new Date(
+            originalData[originalData.length - 1].date
+          ).getTime();
+          chartContext.updateOptions({
+            xaxis: {
+              min: xaxis.min,
+              max: Math.min(xaxis.max, maxDate),
+            },
+          });
+        },
+        scrolled: function (chartContext, { xaxis }) {
+          const maxDate = new Date(
+            originalData[originalData.length - 1].date
+          ).getTime();
+          chartContext.updateOptions({
+            xaxis: {
+              min: xaxis.min,
+              max: Math.min(xaxis.max, maxDate),
+            },
+          });
+        },
+      },
     },
     xaxis: {
       type: "datetime",
-      min: new Date().setMonth(new Date().getMonth() - 3), // 최근 3개월치 데이터를 보이게 설정
-      max: new Date().getTime(),
+      min: new Date().setMonth(new Date().getMonth() - 3),
+      max:
+        originalData.length > 0
+          ? new Date(originalData[originalData.length - 1].date).getTime()
+          : new Date().getTime(),
     },
     yaxis: {
       title: {
@@ -252,12 +282,12 @@ const CandlestickBTCChart: React.FC = () => {
       },
       min: minRatio,
       max: maxRatio,
-      tickAmount: Math.ceil((maxRatio - minRatio) / 0.001), // 레이블을 0.0005 단위로 설정
+      tickAmount: Math.ceil((maxRatio - minRatio) / 0.001),
       labels: {
         style: {
           fontSize: "10px",
         },
-        formatter: (val) => `  1  :  ${Math.floor(1 / val)}`, // 공백을 추가하여 레이블 길이 증가
+        formatter: (val) => `  1  :  ${Math.floor(1 / val)}`,
       },
     },
     plotOptions: {

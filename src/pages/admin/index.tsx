@@ -18,7 +18,7 @@ const Admin = () => {
         setIsAuthenticated(true);
         setMessage("환영합니다, 관리자님");
         setSuccess(true);
-        router.push("/admin/data"); // 인증되었을 때 데이터 페이지로 리디렉트
+        router.push("/admin/dataspring0910"); // 인증되었을 때 데이터 페이지로 리디렉트
       } catch (error) {
         setIsAuthenticated(false);
         setMessage("");
